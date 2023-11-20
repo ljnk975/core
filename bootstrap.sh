@@ -80,6 +80,7 @@ install rocks-devel
 compile_and_install foundation-coreutils
 compile_and_install foundation-gawk
 compile_and_install foundation-wget
+#compile_and_install foundation-PyYAML
 
 compile_and_install librocks
 compile_and_install rocks-pylib

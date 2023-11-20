@@ -401,26 +401,26 @@ help:
 
 
 
-METADATAFILE    := .$(shell basename `pwd`).metadata
-.PHONY: removedownload
+#METADATAFILE    := .$(shell basename `pwd`).metadata
+#.PHONY: removedownload
 
-download:
-	$(ROLLSROOT)/../../bin/get_sources.sh
-
-
-verifydownload:
-	if [ -f "$(METADATAFILE)" ] ;then  \
-		sha1sum -c "$(METADATAFILE)"; \
-	else                               \
-		true;                      \
-	fi
+#download:
+#	$(ROLLSROOT)/../../bin/get_sources.sh
 
 
-removedownload:
-	files=`test -f "$(METADATAFILE)" && awk '{print $$2}' $(METADATAFILE)`; \
-	for i in $$files; do							\
-		test -f $$i && rm $$i;						\
-	done; true								\
+#verifydownload:
+#	if [ -f "$(METADATAFILE)" ] ;then  \
+#		sha1sum -c "$(METADATAFILE)"; \
+#	else                               \
+#		true;                      \
+#	fi
+
+
+#removedownload:
+#	files=`test -f "$(METADATAFILE)" && awk '{print $$2}' $(METADATAFILE)`; \
+#	for i in $$files; do							\
+#		test -f $$i && rm $$i;						\
+#	done; true								\
 
 
 
