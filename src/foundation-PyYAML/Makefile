@@ -81,11 +81,16 @@
 PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET		= ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 PYSRC = PyYAML
 
 build:
+ifeq ($(shell ! test -f $(PYSRC)-$(VERSION).tar.gz && echo -n yes),yes)
+	@echo "WARNING: ./bootstrap.sh didn't download $(PYSRC)-$(VERSION).tar.gz."
+	$(HTTPGET) -B https://pyyaml.org/download/pyyaml -F . -n $(PYSRC)-$(VERSION).tar.gz
+endif
 	gunzip -c $(PYSRC)-$(VERSION).tar.gz | $(TAR) -xf -
 	(								\
 		cd $(PYSRC)-$(VERSION);					\
