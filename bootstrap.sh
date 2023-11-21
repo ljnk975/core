@@ -65,9 +65,12 @@ compile devel
 install rocks-devel
 . /etc/profile.d/rocks-devel.sh
 
-#if [ `./_os` == "linux" ]; then
-#	compile_and_install foundation-redhat
-#fi
+if [ `./_os` == "linux" ]; then
+    install readline-devel 
+    install pam-devel
+    install flex
+    install cmake
+fi
 
 #compile_and_install foundation-mysql
 #compile_and_install foundation-python
