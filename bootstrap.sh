@@ -70,6 +70,9 @@ if [ `./_os` == "linux" ]; then
     install pam-devel
     install flex
     install cmake
+    install libacl-devel
+    install libattr-devel
+    install libcap-devel
 fi
 
 #compile_and_install foundation-mysql

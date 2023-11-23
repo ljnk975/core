@@ -55,16 +55,23 @@
 # @Copyright@
 #
 
-
-
-
 PKGROOT		= /opt/rocks
 REDHAT.ROOT	= $(PWD)/../../
+HTTPGET		= ../../src/devel/devel/bin/httpget.sh
 RPM.EXTRAS += "AutoReqProv: no"
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
+# https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.43.0.tar.gz
 build::
+	@if [ ! -f git-$(VERSION).tar.gz ]; then							\
+		echo "INFO: Now downloading git-$(VERSION).tar.gz ...";				\
+		$(HTTPGET) -B https://mirrors.edge.kernel.org/pub/software/scm/git -F . -n git-$(VERSION).tar.gz;	\
+	fi
+	@if [ ! -f git-manpages-$(VERSION).tar.gz ]; then							\
+		echo "INFO: Now downloading git-manpages-$(VERSION).tar.gz ...";				\
+		$(HTTPGET) -B https://mirrors.edge.kernel.org/pub/software/scm/git -F . -n git-manpages-$(VERSION).tar.gz;	\
+	fi
 	tar -xvzf git-$(VERSION).tar.gz 
 	(							\
 		cd git-$(VERSION);				\
@@ -84,9 +91,9 @@ install::
 		cd ..;                   \
 		tar -xvzf git-manpages-$(VERSION).tar.gz -C /opt/rocks/share/man ;\
 		umount $(PKGROOT);\
-		rm $(ROOT)/$(PKGROOT)/libexec/git-core/git-svn;  \
 		cp gitconfig $(ROOT)/$(PKGROOT)/etc; \
 	)
+#		rm $(ROOT)/$(PKGROOT)/libexec/git-core/git-svn;  \
 
 clean::
 	rm -rf $(NAME)

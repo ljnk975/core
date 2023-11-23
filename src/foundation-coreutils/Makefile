@@ -136,12 +136,17 @@
 PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET		= ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-
+# https://ftp.gnu.org/gnu/coreutils/coreutils-9.4.tar.xz
 build:
-	gunzip -c coreutils-$(VERSION).tar.gz | $(TAR) -xf - 
+	@if [ ! -f coreutils-$(VERSION).tar.xz ]; then							\
+		echo "INFO: Now downloading coreutils-$(VERSION).tar.xz ...";				\
+		$(HTTPGET) -B https://ftp.gnu.org/gnu/coreutils -F . -n coreutils-$(VERSION).tar.xz;	\
+	fi
+	unxz -c coreutils-$(VERSION).tar.xz | $(TAR) -xf - 
 	( 								\
 		cd coreutils-$(VERSION);				\
 		FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=$(PKGROOT);	 		\

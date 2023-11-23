@@ -87,10 +87,10 @@ include Rules.mk
 PYSRC = PyYAML
 
 build:
-ifeq ($(shell ! test -f $(PYSRC)-$(VERSION).tar.gz && echo -n yes),yes)
-	@echo "WARNING: ./bootstrap.sh didn't download $(PYSRC)-$(VERSION).tar.gz."
-	$(HTTPGET) -B https://pyyaml.org/download/pyyaml -F . -n $(PYSRC)-$(VERSION).tar.gz
-endif
+	@if [ ! -f $(PYSRC)-$(VERSION).tar.gz ]; then							\
+		echo "INFO: Now downloading $(PYSRC)-$(VERSION).tar.gz ...";				\
+		$(HTTPGET) -B https://pyyaml.org/download/pyyaml -F . -n $(PYSRC)-$(VERSION).tar.gz;	\
+	fi
 	gunzip -c $(PYSRC)-$(VERSION).tar.gz | $(TAR) -xf -
 	(								\
 		cd $(PYSRC)-$(VERSION);					\
