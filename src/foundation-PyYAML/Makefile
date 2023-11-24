@@ -87,6 +87,7 @@ include Rules.mk
 PYSRC = PyYAML
 
 build:
+#	PyYAML sources are not available on http://sources.rocksclusters.org
 ifeq ($(shell ! test -f $(PYSRC)-$(VERSION).tar.gz && echo -n yes),yes)
 	@echo "WARNING: ./bootstrap.sh didn't download $(PYSRC)-$(VERSION).tar.gz."
 	$(HTTPGET) -B https://pyyaml.org/download/pyyaml -F . -n $(PYSRC)-$(VERSION).tar.gz
