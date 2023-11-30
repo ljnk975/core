@@ -185,6 +185,7 @@ compile_and_install rocks-gen
 compile_and_install rocks-profile
 compile devel
 install rocks-devel
+compile_and_install librocks	# prep for base-roll
 
 # 4. Make sure we have updated paths
 . /etc/profile.d/rocks-binaries.sh
