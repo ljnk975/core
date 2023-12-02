@@ -111,10 +111,9 @@ endif
 ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 7)
 VERSION.MAJOR = 7
 VERSION.MINOR = 2
-VERSION.PATCH = 0UCR
-RELEASE_NAME = Coffeeberry
+VERSION.PATCH = 0
+RELEASE_NAME = Coffeeberry \(Unofficial Community Release\)
 endif
-# UCR = Unofficial Community Release
 
 ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 8)
 VERSION.MAJOR = 8
