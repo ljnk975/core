@@ -160,6 +160,8 @@ if [ `./_os` == "linux" ]; then
 	EXTRA_PACKAGES="$EXTRA_PACKAGES flex bison glib2-devel pycairo-devel" 
 	EXTRA_PACKAGES="$EXTRA_PACKAGES cairo-gobject cairo-gobject-devel Cython" 
 	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel openssl-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo apr apr-devel expat-devel cmake $EXTRA_PACKAGES
+# install more packages for easy UCR roll build
+yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server python-inotify hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc
 fi
 
 
