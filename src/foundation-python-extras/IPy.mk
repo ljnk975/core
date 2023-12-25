@@ -85,20 +85,29 @@
 #
 #
 
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+IPY_VERSION     = 1.01
+
 build::
-	gunzip -c IPy-0.55.tar.gz | $(TAR) -xf -
+# ROCKS8: Bump to version 1.01 (slightly above Rocky8)
+# https://files.pythonhosted.org/packages/64/a4/9c0d88d95666ff1571d7baec6c5e26abc08051801feb6e6ddf40f6027e22/IPy-1.01.tar.gz
+ifeq ($(shell ! test -f IPy-$(IPY_VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading IPy-$(IPY_VERSION).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/64/a4/9c0d88d95666ff1571d7baec6c5e26abc08051801feb6e6ddf40f6027e22 -n IPy-$(IPY_VERSION).tar.gz
+endif
+	gunzip -c IPy-$(IPY_VERSION).tar.gz | $(TAR) -xf -
 	(								\
-		cd IPy-0.55;						\
+		cd IPy-$(IPY_VERSION);					\
 		$(PY.PATH) setup.py build;				\
 	)
 	
 install::
 	(								\
-		cd IPy-0.55;						\
+		cd IPy-$(IPY_VERSION);					\
 		$(PY.PATH) setup.py install --root=$(ROOT);		\
 	)
 
 
 clean::
-	rm -rf IPy-0.55
+	rm -rf IPy-$(IPY_VERSION)
 

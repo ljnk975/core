@@ -429,6 +429,11 @@ $(NAME).spec: $(NAME).spec.mk
 	$(PF) "$(rpm.obsoletes)\n" >> $@
 	$(PF) "$(rpm.conflicts)\n" >> $@
 	echo -e "$(RPM.EXTRAS)" >> $@
+#	--- ROCKS8 ---
+	$(PF) "%%define _build_id_links none\n" >> $@;
+#	https://stackoverflow.com/questions/69915828
+	$(PF) "%%define __brp_mangle_shebangs %%{nil}\n" >> $@; 
+#	--- ROCKS8 ---
 	$(PF) "%%description\n" >> $@
 	if [ ! -f DESCRIPTION ]; then			\
 		$(PF) "$(rpm.description)\n" >> $@;	\

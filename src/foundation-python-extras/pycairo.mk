@@ -82,21 +82,26 @@
 #
 #
 
-PYCAIRO_VERSION	= 1.2.0
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+PYCAIRO_VERSION	= 1.16.3
 
 build::
+# ROCKS8: Bump to version 1.16.3 (same as on Rocky8)
+# https://files.pythonhosted.org/packages/a4/95/e8cb30180a87653aa130a20d3cc91021833e2d0024b6880f197bf315fe09/pycairo-1.16.3.tar.gz
+ifeq ($(shell ! test -f pycairo-$(PYCAIRO_VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading pycairo-$(PYCAIRO_VERSION).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/a4/95/e8cb30180a87653aa130a20d3cc91021833e2d0024b6880f197bf315fe09 -n pycairo-$(PYCAIRO_VERSION).tar.gz
+endif
 	gunzip -c pycairo-$(PYCAIRO_VERSION).tar.gz | $(TAR) -xf -
 	(								\
 		cd pycairo-$(PYCAIRO_VERSION);				\
-		PATH=/opt/rocks/bin:$$PATH				\
-			./configure --prefix=$(PKGROOT);		\
-		$(MAKE);						\
+		$(PY.PATH) setup.py build;                              \
 	)
 	
 install::
 	(								\
 		cd pycairo-$(PYCAIRO_VERSION);				\
-		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
+		$(PY.PATH) setup.py install --root=$(ROOT);             \
 	)
 
 

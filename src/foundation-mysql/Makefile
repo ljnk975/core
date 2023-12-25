@@ -220,6 +220,7 @@ REMLIST		= / /opt /etc /var
 INSTALLDB	= $(PKGROOT)/sbin/mysql-install-db
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET		= ../../src/devel/devel/bin/httpget.sh
 # we set the path to load the shared library in the RPATH of 
 
 # each foundation-mysql executables instead of adding it to 
@@ -229,11 +230,22 @@ ROCKSROOT       = ../devel/devel
 #
 MYSQL_LDFLAGS   += -Wl,-rpath,/opt/rocks/mysql/lib
 
-
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
 build:
+# Rocky8 ships with openssl 1.1.1 which is incompatible with mysql-5.2.26
+# See https://bugs.mysql.com/bug.php?id=83814
+# SSL-problem fixed in mysql-5.7.23.tar.gz. However did not manage to make
+# it work. Therefore decided to use mysql-5.6.51.tar.gz (last release of
+# 5.6.x-series) and to introduce separate OpenSSL installation in /opt/rocks
+# See foundation-openssl-old for details. mysql-5.2.26 does not compile on
+# Rocky8.
+# https://downloads.mysql.com/archives/get/p/23/file/mysql-5.6.51.tar.gz
+ifeq ($(shell ! test -f mysql-$(VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading mysql-$(VERSION).tar.gz."
+	$(HTTPGET) -B https://downloads.mysql.com -F archives/get/p/23/file -n mysql-$(VERSION).tar.gz
+endif
 	gunzip -c mysql-$(VERSION).tar.gz | $(TAR) -xf -
 	(cd patch-files && find mysql-$(VERSION) -type f | grep -v CVS | cpio -pduv ../)
 	( 								\
@@ -243,10 +255,11 @@ build:
 			-DMYSQL_DATADIR=$(PKGVAR)			\
 			-DMYSQL_UNIX_ADDR=$(PKGVAR)/mysql.sock 		\
 			-DMYSQL_TCP_PORT=40000				\
-			-DWITH_SSL=yes					\
+			-DWITH_SSL=/opt/rocks				\
 			-DWITH_DEBUG=no;				\
 		$(MAKE);						\
 	)
+
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)/etc/
@@ -277,4 +290,3 @@ install::
 clean::
 	rm -rf mysql-$(VERSION)
 	-/bin/rm $(RPM.FILESLIST)
-	

@@ -116,10 +116,11 @@ RELEASE_NAME = Coffeeberry \(Unofficial Community Release\)
 endif
 
 ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 8)
+# ROCKS8
 VERSION.MAJOR = 8
 VERSION.MINOR = 0
-#VERSION.PATCH = 3
-RELEASE_NAME = Gorgonio
+VERSION.PATCH = 0
+RELEASE_NAME = Gorgonio \(Unofficial Community Release\)
 endif
 
 ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 9)

@@ -131,14 +131,23 @@
 # - more source built foundations
 # - scipy stuff is here now (may move to hpc roll)
 #
+
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 ifeq ($(strip $(VERSION.MAJOR)), 5)
 MYSQLPYVERSION=1.2.1_p2
 else
-MYSQLPYVERSION=1.2.3
+MYSQLPYVERSION=1.2.5
 endif
 
 build::
-	gunzip -c MySQL-python-$(MYSQLPYVERSION).tar.gz | $(TAR) -xf -
+# ROCKS8: Bump to version 1.2.5 (latest version)
+# https://files.pythonhosted.org/packages/a5/e9/51b544da85a36a68debe7a7091f068d802fc515a3a202652828c73453cad/MySQL-python-1.2.5.zip
+ifeq ($(shell ! test -f MySQL-python-$(MYSQLPYVERSION).zip && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading MySQL-python-$(MYSQLPYVERSION).zip"
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/a5/e9/51b544da85a36a68debe7a7091f068d802fc515a3a202652828c73453cad -n MySQL-python-$(MYSQLPYVERSION).zip
+endif
+	unzip MySQL-python-$(MYSQLPYVERSION).zip
+	#gunzip -c MySQL-python-$(MYSQLPYVERSION).tar.gz | $(TAR) -xf -
 	# we need to patch the site.cfg so it will pick up the proper mysql 
 	# configuration and we also want to add the rpath in the _mysql.so
 	# (so we can remove global /etc/ld.conf include)

@@ -1,5 +1,5 @@
-#
-# $Id: rocks-binaries.sh,v 1.15 2012/11/27 00:48:32 phil Exp $
+# --------------------------------------------------- -*- Makefile -*- --
+# $Id: Makefile,v 1.3 2012/11/27 00:48:37 phil Exp $
 #
 # @Copyright@
 # 
@@ -55,112 +55,46 @@
 # 
 # @Copyright@
 #
-#
-# $Log: rocks-binaries.sh,v $
-# Revision 1.15  2012/11/27 00:48:32  phil
+# $Log: Makefile,v $
+# Revision 1.3  2012/11/27 00:48:37  phil
 # Copyright Storm for Emerald Boa
 #
-# Revision 1.14  2012/05/06 05:48:38  phil
+# Revision 1.2  2012/05/06 05:48:43  phil
 # Copyright Storm for Mamba
 #
-# Revision 1.13  2012/04/30 16:42:04  phil
-# Only add rocks/[bin/sbin] to path if it doesn't exist
-#
-# Revision 1.12  2011/07/23 02:30:41  phil
-# Viper Copyright
-#
-# Revision 1.11  2010/09/07 23:53:03  bruno
-# star power for gb
-#
-# Revision 1.10  2009/05/01 19:07:04  mjk
-# chimi con queso
-#
-# Revision 1.9  2008/10/18 00:55:58  mjk
-# copyright 5.1
-#
-# Revision 1.8  2008/03/06 23:41:40  mjk
-# copyright storm on
-#
-# Revision 1.7  2007/06/23 04:03:21  mjk
-# mars hill copyright
-#
-# Revision 1.6  2006/09/11 22:47:05  mjk
-# monkey face copyright
-#
-# Revision 1.5  2006/08/10 00:09:28  mjk
-# 4.2 copyright
-#
-# Revision 1.4  2005/10/12 18:08:34  mjk
-# final copyright for 4.1
-#
-# Revision 1.3  2005/09/16 01:02:14  mjk
-# updated copyright
-#
-# Revision 1.2  2005/05/24 21:21:50  mjk
-# update copyright, release is not any closer
-#
-# Revision 1.1  2005/03/01 02:02:43  mjk
-# moved from core to base
-#
-# Revision 1.10  2004/03/25 03:15:29  bruno
-# touch 'em all!
-#
-# update version numbers to 3.2.0 and update copyrights
-#
-# Revision 1.9  2003/12/15 17:21:22  mjk
-# define ROCKS_ROOT variable
-#
-# Revision 1.8  2003/08/15 22:34:46  mjk
-# 3.0.0 copyright
-#
-# Revision 1.7  2003/06/02 22:48:17  fds
-# Moving man path manipulations into kickstart post section.
-# They don't need to be dealt with at every login.
-#
-# Revision 1.6  2003/05/22 16:39:27  mjk
-# copyright
-#
-# Revision 1.5  2003/02/17 18:43:04  bruno
-# updated copyright to 2003
-#
-# Revision 1.4  2002/10/21 21:38:50  mjk
-# - added /opt/ganglia/bin to PATH
-# - added /opt/ganglia/man to MANPATH
-# - added /opt/rocks/man to MANPATH
-#
-# Revision 1.3  2002/10/18 21:33:26  mjk
-# Rocks 2.3 Copyright
-#
-# Revision 1.2  2002/10/14 17:30:44  bruno
-# fixed up PATH environment variable
-#
-# Revision 1.1  2002/10/11 23:16:12  bruno
-# added rocks-binaries.*sh files
-#
+# Revision 1.1  2012/02/01 20:42:59  phil
+# Setuptools needed for MYSQL-python build on Rocks v. 6
 #
 #
 
-export ROCKS_ROOT=/opt/rocks
+PKGROOT		= /opt/rocks
+REDHAT.ROOT     = $(CURDIR)/../../
+ROCKSROOT       = ../devel/devel
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+-include $(ROCKSROOT)/etc/Rules.mk
+include Rules.mk
 
-BIN=${ROCKS_ROOT}/bin
-SBIN=${ROCKS_ROOT}/sbin
-LIB=${ROCKS_ROOT}/lib
 
-if [ -d ${BIN} ]; then
-	if ! echo ${PATH} | /bin/grep -q ${BIN} ; then
-        	export PATH=${PATH}:${BIN}
-	fi
-fi
+build:
+# ROCKS8: Same setuptools version as in Rocky8
+# https://files.pythonhosted.org/packages/be/08/bb5ffd1c32a951cbc26011ecb8557e59dc7a0a4975f0ad98b2cd7446f7dd/Cython-0.28.1.tar.gz
+ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/be/08/bb5ffd1c32a951cbc26011ecb8557e59dc7a0a4975f0ad98b2cd7446f7dd -n $(PYPKGNAME)-$(VERSION).tar.gz
+endif
+	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
+#	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(PY.PATH) setup.py build;				\
+	)
 
-if [ -d ${SBIN} ]; then
-	if ! echo ${PATH} | /bin/grep -q ${SBIN} ; then
-        	export PATH=${PATH}:${SBIN}
-	fi
-fi
+install::
+	mkdir -p $(ROOT)/$(PKGROOT)
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(PY.PATH) setup.py install --root=$(ROOT);		\
+	)
 
-if [ -d ${LIB} ]; then
-	if ! echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB} ; then
-		export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${LIB}
-	fi
-fi
-
+clean::
+	rm -rf $(PYPKGNAME)-$(VERSION)

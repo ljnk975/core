@@ -87,10 +87,12 @@ include Rules.mk
 PYSRC = PyYAML
 
 build:
-#	PyYAML sources are not available on http://sources.rocksclusters.org
+# ROCKS8: Bump to version 3.13 (slightly above Rocky8)
+# PyYAML sources are not available on http://sources.rocksclusters.org
+# https://files.pythonhosted.org/packages/9e/a3/1d13970c3f36777c583f136c136f804d70f500168edc1edea6daa7200769/PyYAML-3.13.tar.gz
 ifeq ($(shell ! test -f $(PYSRC)-$(VERSION).tar.gz && echo -n yes),yes)
-	@echo "WARNING: ./bootstrap.sh didn't download $(PYSRC)-$(VERSION).tar.gz."
-	$(HTTPGET) -B https://pyyaml.org/download/pyyaml -F . -n $(PYSRC)-$(VERSION).tar.gz
+	@echo "ROCKS8: Sideloading $(PYSRC)-$(VERSION).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/9e/a3/1d13970c3f36777c583f136c136f804d70f500168edc1edea6daa7200769 -n $(PYSRC)-$(VERSION).tar.gz
 endif
 	gunzip -c $(PYSRC)-$(VERSION).tar.gz | $(TAR) -xf -
 	(								\

@@ -121,7 +121,19 @@ ifeq ($(strip $(VERSION.MAJOR)), 7)
 NUMPY_VERSION = 1.10.4
 endif
 
+ifeq ($(strip $(VERSION.MAJOR)), 8)
+NUMPY_VERSION = 1.14.2
+endif
+
+HTTPGET	      = ../../src/devel/devel/bin/httpget.sh
+
 build::
+# ROCKS8: Bump to version 1.14.2 (same as on Rocky8)
+# https://src.fedoraproject.org/repo/pkgs/numpy/numpy-1.14.2.tar.gz/sha512/65b10462011e033669b700f0688df2e8630a097323fc7d72e71549fdfc2258546fe6f1317e0d51e1a0c9ab86451e0998ccbc7daa9af690652a96034571d5b76b/numpy-1.14.2.tar.gz
+ifeq ($(shell ! test -f numpy-$(NUMPY_VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading numpy-$(NUMPY_VERSION).tar.gz."
+	$(HTTPGET) -B https://src.fedoraproject.org -F repo/pkgs/numpy/numpy-1.14.2.tar.gz/sha512/65b10462011e033669b700f0688df2e8630a097323fc7d72e71549fdfc2258546fe6f1317e0d51e1a0c9ab86451e0998ccbc7daa9af690652a96034571d5b76b -n numpy-$(NUMPY_VERSION).tar.gz
+endif
 	gunzip -c numpy-$(NUMPY_VERSION).tar.gz | $(TAR) -xf -
 	(								\
 		cd numpy-$(NUMPY_VERSION);				\

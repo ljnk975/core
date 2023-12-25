@@ -76,24 +76,35 @@
 #
 #
 
-M2OPTIONS	= build_ext "-I/usr/include/openssl -DOPENSSL_NO_EC"
-CRYPTOVERSION	= 0.21.1
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+OPENSSL_PREFIX	= /opt/rocks
+#M2DEFS		= -DOPENSSL_NO_EC 	# EC already deactivated in OpenSSL 1.0.2u
+M2OPTIONS	= build_ext "-I$(OPENSSL_PREFIX)/include $(M2DEFS)"
+CRYPTOVERSION	= 0.35.2
 
 build::
+# ROCKS8: Bump to version 0.35.2 (same as on Rocky8)
+# https://files.pythonhosted.org/packages/74/18/3beedd4ac48b52d1a4d12f2a8c5cf0ae342ce974859fba838cbbc1580249/M2Crypto-0.35.2.tar.gz
+ifeq ($(shell ! test -f M2Crypto-$(CRYPTOVERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading M2Crypto-$(CRYPTOVERSION).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/74/18/3beedd4ac48b52d1a4d12f2a8c5cf0ae342ce974859fba838cbbc1580249 -n M2Crypto-$(CRYPTOVERSION).tar.gz
+endif
 	gunzip -c M2Crypto-$(CRYPTOVERSION).tar.gz | $(TAR) -xf -
-	(								\
-		cd M2Crypto-$(CRYPTOVERSION);				\
-		for f in `find . -exec grep -l opensslconf.h {} \;`;  	\
-		do 						\
-		    sed -i "s/opensslconf.h/opensslconf-$(ARCH).h/" $$f; \
-		done; 							\
-		SWIG_FEATURES="-cpperraswarn -DOPENSSL_NO_EC" $(PY.PATH) setup.py build $(M2OPTIONS);			\
+	(												\
+		cd M2Crypto-$(CRYPTOVERSION);								\
+		C_INCLUDE_PATH=$(OPENSSL_PREFIX)/include LIBRARY_PATH=$(OPENSSL_PREFIX)/lib SWIG_FEATURES="-cpperraswarn $(M2DEFS)" $(PY.PATH) setup.py build $(M2OPTIONS);	\
 	)
+
+# header renaming unnecessary due to custom openssl build
+#		for f in `find . -exec grep -l opensslconf.h {} 2>/dev/null \;`;  	\
+#		do 						\
+#		    sed -i "s/opensslconf.h/opensslconf-$(ARCH).h/" $$f; \
+#		done; 	\
 	
 install::
-	(								\
-		cd M2Crypto-$(CRYPTOVERSION);				\
-		$(PY.PATH) setup.py $(M2OPTIONS) install --root=$(ROOT); \
+	(												\
+		cd M2Crypto-$(CRYPTOVERSION);								\
+		$(PY.PATH) setup.py $(M2OPTIONS) install --root=$(ROOT); 				\
 	)
 
 

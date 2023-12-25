@@ -144,6 +144,7 @@ include Rules.mk
 
 
 build:
+# ROCKS8: unclear use and patching procedure. I leave foundation-rcs as it is...
 	gunzip -c rcs-$(VERSION).tar.gz | $(TAR) -xf -
 	(cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../)
 	( 								\

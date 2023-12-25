@@ -1,0 +1,19 @@
+https://www.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz
+Last release of 1.0.x series.
+
+
+./config --prefix=/tmp/muell --shared
+make
+make install_sw
+
+
+
+Package builders who want to configure the library for standard
+     locations, but have the package installed somewhere else so that
+     it can easily be packaged, can use
+
+       $ make INSTALL_PREFIX=/tmp/package-root install
+
+     (or specify "--install_prefix=/tmp/package-root" as a configure
+     option).  The specified prefix will be prepended to all
+     installation target filenames.

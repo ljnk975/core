@@ -22,4 +22,14 @@ endif
 RPM.FILES = "/opt/rocks/bin/*\\n/opt/rocks/include/python2*\\n/opt/rocks/lib/lib*\\n/opt/rocks/lib/python2*\\n/opt/rocks/share/man/man1/*\\n/opt/rocks/usr/bin/*"
 ifeq ($(strip $(VERSION.MAJOR)), 7)
 RPM.FILES += "\\n/opt/rocks/lib/pkgconfig/*"
+endif
+ifeq ($(strip $(VERSION.MAJOR)), 8)
+#ROCKS8
+VERSION = 2.7.18
+RELEASE = 0
+ADDFLAGS = "CFLAGS=-fPIC"
+RPM.EXTRAS="%define _python_bytecompile_errors_terminate_build 0\\n%define __python_requires  %{_builddir}/%{name}-%{version}/filter_python_requires.sh"
+RPM.FILES = "/opt/rocks/bin/*\\n/opt/rocks/include/python2*\\n/opt/rocks/lib/lib*\\n/opt/rocks/lib/python2*\\n/opt/rocks/share/man/man1/*\\n/opt/rocks/usr/bin/*"
+RPM.FILES += "\\n/opt/rocks/lib/pkgconfig/*"
+#CONFIGOPTS += --exec-prefix=$(PKGROOT)
 endif 

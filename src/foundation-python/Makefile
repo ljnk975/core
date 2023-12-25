@@ -174,11 +174,18 @@
 PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
 
 build:
+# https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
+ifeq ($(shell ! test -f Python-$(VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading Python-$(VERSION).tar.gz."
+	$(HTTPGET) -B https://www.python.org -F ftp/python/2.7.18 -n Python-$(VERSION).tgz
+	mv Python-$(VERSION).tgz Python-$(VERSION).tar.gz
+endif
 	gunzip -c Python-$(VERSION).tar.gz | $(TAR) -xf -
 	-cd patch-files-$(ARCH) && find . -type f | grep -v CVS | cpio -pduv ../
 ifeq ($(strip $(VERSION.MAJOR)),5)

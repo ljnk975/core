@@ -149,19 +149,27 @@
 PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
 PERL		= /usr/bin/perl
 
 build:
+
+# https://src.fedoraproject.org/repo/pkgs/libxml2/libxml2-2.9.7.tar.gz/sha512/da06cb7c5032ef4b7c8e902fabb9d2c74634c42c161be07a7c66a00d53a68029f89b0d4de32a6b9d4ff338c2d1d9c4e53aefb9cf50cb1c2d6c6b06b442ef42d5/libxml2-2.9.7.tar.gz
+ifeq ($(shell ! test -f libxml2-$(VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading libxml2-$(VERSION).tar.gz."
+	$(HTTPGET) -B https://src.fedoraproject.org -F repo/pkgs/libxml2/libxml2-2.9.7.tar.gz/sha512/da06cb7c5032ef4b7c8e902fabb9d2c74634c42c161be07a7c66a00d53a68029f89b0d4de32a6b9d4ff338c2d1d9c4e53aefb9cf50cb1c2d6c6b06b442ef42d5 -n libxml2-$(VERSION).tar.gz
+endif
 	gunzip -c libxml2-$(VERSION).tar.gz | $(TAR) -xf - 
 #	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	( 					\
 		cd libxml2-$(VERSION);		\
 		./configure --prefix=$(PKGROOT) \
 		--with-python=/opt/rocks	\
-		PERL=$(PERL);\
+		--mandir=/opt/rocks/man		\
+		PERL=$(PERL);			\
 		$(MAKE);			\
 	)
 

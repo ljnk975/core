@@ -120,13 +120,20 @@
 # - scipy stuff is here now (may move to hpc roll)
 #
 
-PYGTK_VERSION	= 2.10.6
+PYGTK_VERSION	= 2.24.0
 
 build::
+# ROCKS8: Bump to version 2.24.0 (same as on Rocky8)
+# https://download.gnome.org/sources/pygtk/2.24/pygtk-2.24.0.tar.gz
+ifeq ($(shell ! test -f pygtk-$(PYGTK_VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading pygtk-$(PYGTK_VERSION).tar.gz."
+	$(HTTPGET) -B https://download.gnome.org -F sources/pygtk/2.24 -n pygtk-$(PYGTK_VERSION).tar.gz
+endif
 	gunzip -c pygtk-$(PYGTK_VERSION).tar.gz | $(TAR) -xf -
 	(								\
 		cd pygtk-$(PYGTK_VERSION);				\
 		PATH=/opt/rocks/bin:$$PATH				\
+		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:/usr/lib64/pkgconfig:$$PKG_CONFIG_PATH     \
 			./configure --prefix=$(PKGROOT);		\
 		$(MAKE);						\
 	)

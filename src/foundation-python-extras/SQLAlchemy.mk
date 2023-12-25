@@ -57,9 +57,16 @@
 #
 #
 
-vers = 0.9.2
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+vers = 1.3.2
 
 build::
+# ROCKS8: Bump to version 1.3.2 (same as on Rocky8)
+# https://files.pythonhosted.org/packages/2a/9b/9b8aa2d5dbe2e4052cb4c84b8cf5e31686943f24b0565f436439bdc343b5/SQLAlchemy-1.3.2.tar.gz
+ifeq ($(shell ! test -f SQLAlchemy-$(vers).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading SQLAlchemy-$(vers).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/2a/9b/9b8aa2d5dbe2e4052cb4c84b8cf5e31686943f24b0565f436439bdc343b5 -n SQLAlchemy-$(vers).tar.gz
+endif
 	gunzip -c SQLAlchemy-$(vers).tar.gz | $(TAR) -xf -
 	(								\
 		cd SQLAlchemy-$(vers);						\
@@ -74,4 +81,4 @@ install::
 
 
 clean::
-	rm -rf numpy-1.2.1
+	rm -rf SQLAlchemy-$(vers)

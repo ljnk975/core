@@ -54,15 +54,22 @@
 # @Copyright@
 #
 
-GOBJECT_VERSION	= 1.40.0
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+GOBJECT_VERSION	= 1.56.1
 GOBJ = gobject-introspection
 
 # build twice - first time, install into a temporary install directory
 # so that pygobject can link against it
 build::
-	gunzip -c $(GOBJ)-$(GOBJECT_VERSION).tar.gz | $(TAR) -xf -
+# ROCKS8: Bump to version 1.56.1 (same as on Rocky8)
+# https://download.gnome.org/sources/gobject-introspection/1.56/gobject-introspection-1.56.1.tar.xz
+ifeq ($(shell ! test -f $(GOBJ)-$(GOBJECT_VERSION).tar.xz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading $(GOBJ)-$(GOBJECT_VERSION).tar.xz."
+	$(HTTPGET) -B https://download.gnome.org -F sources/gobject-introspection/1.56 -n $(GOBJ)-$(GOBJECT_VERSION).tar.xz
+endif
+	unxz -c $(GOBJ)-$(GOBJECT_VERSION).tar.xz | $(TAR) -xf -
 	(								\
-		cd $(GOBJ)-$(GOBJECT_VERSION);			\
+		cd $(GOBJ)-$(GOBJECT_VERSION);				\
 		PATH=/opt/rocks/bin:$$PATH				\
 			./configure --prefix=$(PWD)/../$(TMPINSTALL);	\
 		$(MAKE); $(MAKE) install; $(MAKE) clean;		\

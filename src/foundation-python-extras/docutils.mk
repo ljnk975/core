@@ -70,18 +70,26 @@
 #
 #
 
-DOCUTILS_NAME = docutils
-DOCUTILS_VERSION = 0.12
+HTTPGET          = ../../src/devel/devel/bin/httpget.sh
+DOCUTILS_NAME    = docutils
+DOCUTILS_VERSION = 0.14
+
 build::
+# ROCKS8: Bump to version 0.14 (same as on Rocky8)
+# https://files.pythonhosted.org/packages/84/f4/5771e41fdf52aabebbadecc9381d11dea0fa34e4759b4071244fa094804c/docutils-0.14.tar.gz
+ifeq ($(shell ! test -f $(DOCUTILS_NAME)-$(DOCUTILS_VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading $(DOCUTILS_NAME)-$(DOCUTILS_VERSION).tar.gz"
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/84/f4/5771e41fdf52aabebbadecc9381d11dea0fa34e4759b4071244fa094804c -n $(DOCUTILS_NAME)-$(DOCUTILS_VERSION).tar.gz
+endif
 	gunzip -c $(DOCUTILS_NAME)-$(DOCUTILS_VERSION).tar.gz | $(TAR) -xf -
 	(								\
-		cd $(DOCUTILS_NAME)-$(DOCUTILS_VERSION);					\
+		cd $(DOCUTILS_NAME)-$(DOCUTILS_VERSION);		\
 		$(PY.PATH) setup.py build;				\
 	)
 	
 install::
 	(								\
-		cd $(DOCUTILS_NAME)-$(DOCUTILS_VERSION);					\
+		cd $(DOCUTILS_NAME)-$(DOCUTILS_VERSION);		\
 		$(PY.PATH) setup.py install --root=$(ROOT);		\
 	)
 

@@ -56,7 +56,6 @@
 #
 
 -include $(CURDIR)/devel/devel/etc/rocks-version.mk
-#SRCDIRS = foundation-PyYAML
 SRCDIRS = `find . -type d -maxdepth 1 \
 	-not -name CVS \
 	-not -name . `

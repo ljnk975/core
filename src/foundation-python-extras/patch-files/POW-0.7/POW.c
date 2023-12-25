@@ -34,6 +34,9 @@
 /*                                                                           */
 /*****************************************************************************/
 
+// ROCKS8: removed MD2 for OpenSSL 1.0.2u
+// https://github.com/openssl/openssl/issues/14205
+
 #include <Python.h>
 
 #include <openssl/crypto.h>
@@ -46,7 +49,6 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/md5.h>
-#include <openssl/md2.h>
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/ripemd.h>
@@ -125,11 +127,10 @@
 #define NO_DH
 
 // digests
-#define MD2_DIGEST            1
-#define MD5_DIGEST            2
-#define SHA_DIGEST            3
-#define SHA1_DIGEST           4
-#define RIPEMD160_DIGEST      5
+#define MD5_DIGEST            1
+#define SHA_DIGEST            2
+#define SHA1_DIGEST           3
+#define RIPEMD160_DIGEST      4
 
 //object format
 #define SHORTNAME_FORMAT      1
@@ -768,7 +769,6 @@ static char X509_object_sign__doc__[] =
 "         signed, it should be one of the following:\n"
 "      </para>\n"
 "      <simplelist>\n"
-"         <member><constant>MD2_DIGEST</constant></member>\n"
 "         <member><constant>MD5_DIGEST</constant></member>\n"
 "         <member><constant>SHA_DIGEST</constant></member>\n"
 "         <member><constant>SHA1_DIGEST</constant></member>\n"
@@ -803,12 +803,6 @@ X509_object_sign(x509_object *self, PyObject *args)
       case MD5_DIGEST:
       { 
          if (!X509_sign(self->x509, pkey, EVP_md5() ) ) 
-            { PyErr_SetString( SSLErrorObject, "could not sign certificate" ); goto error; }
-         break;
-      }
-      case MD2_DIGEST:
-      { 
-         if (!X509_sign(self->x509, pkey, EVP_md2() ) ) 
             { PyErr_SetString( SSLErrorObject, "could not sign certificate" ); goto error; }
          break;
       }
@@ -2817,7 +2811,6 @@ static char x509_crl_object_sign__doc__[] =
 "         signed, it should be one of the following:\n"
 "      </para>\n"
 "      <simplelist>\n"
-"         <member><constant>MD2_DIGEST</constant></member>\n"
 "         <member><constant>MD5_DIGEST</constant></member>\n"
 "         <member><constant>SHA_DIGEST</constant></member>\n"
 "         <member><constant>SHA1_DIGEST</constant></member>\n"
@@ -2851,12 +2844,6 @@ x509_crl_object_sign(x509_crl_object *self, PyObject *args)
       case MD5_DIGEST:
       { 
          if (!X509_CRL_sign(self->crl, pkey, EVP_md5() ) ) 
-            { PyErr_SetString( SSLErrorObject, "could not sign certificate" ); goto error; }
-         break;
-      }
-      case MD2_DIGEST:
-      { 
-         if (!X509_CRL_sign(self->crl, pkey, EVP_md2() ) ) 
             { PyErr_SetString( SSLErrorObject, "could not sign certificate" ); goto error; }
          break;
       }
@@ -5033,7 +5020,6 @@ static char asymmetric_object_sign__doc__[] =
 "         following:\n"
 "      </para>\n"
 "      <simplelist>\n"
-"         <member><constant>MD2_DIGEST</constant></member>\n"
 "         <member><constant>MD5_DIGEST</constant></member>\n"
 "         <member><constant>SHA_DIGEST</constant></member>\n"
 "         <member><constant>SHA1_DIGEST</constant></member>\n"
@@ -5066,8 +5052,6 @@ asymmetric_object_sign(asymmetric_object *self, PyObject *args)
 
    switch(digest_type)
    {
-      case MD2_DIGEST:
-         { digest_nid = NID_md2; digest_len = MD2_DIGEST_LENGTH; break; }
       case MD5_DIGEST:
          { digest_nid = NID_md5; digest_len = MD5_DIGEST_LENGTH; break; }
       case SHA_DIGEST:
@@ -5144,7 +5128,6 @@ static char asymmetric_object_verify__doc__[] =
 "         following:\n"
 "      </para>\n"
 "      <simplelist>\n"
-"         <member><constant>MD2_DIGEST</constant></member>\n"
 "         <member><constant>MD5_DIGEST</constant></member>\n"
 "         <member><constant>SHA_DIGEST</constant></member>\n"
 "         <member><constant>SHA1_DIGEST</constant></member>\n"
@@ -5168,8 +5151,6 @@ asymmetric_object_verify(asymmetric_object *self, PyObject *args)
 
    switch(digest_type)
    {
-      case MD2_DIGEST:
-         { digest_len = MD2_DIGEST_LENGTH; digest_nid = NID_md2; break; }
       case MD5_DIGEST:
          { digest_len = MD5_DIGEST_LENGTH; digest_nid = NID_md5; break; }
       case SHA_DIGEST:
@@ -5570,8 +5551,6 @@ digest_object_new(int digest_type)
 
    switch(digest_type)
    {
-      case MD2_DIGEST: 
-         { self->digest_type = MD2_DIGEST; EVP_DigestInit( &self->digest_ctx, EVP_md2() ); break; }
       case MD5_DIGEST: 
          { self->digest_type = MD5_DIGEST; EVP_DigestInit( &self->digest_ctx, EVP_md5() ); break; }
       case SHA_DIGEST: 
@@ -5788,8 +5767,6 @@ hmac_object_new(int digest_type, char *key, int key_len)
 
    switch(digest_type)
    {
-      case MD2_DIGEST: 
-         { md = EVP_md2(); break; }
       case MD5_DIGEST: 
          { md = EVP_md5(); break; }
       case SHA_DIGEST: 
@@ -6140,7 +6117,6 @@ static char pow_module_new_digest__doc__[] =
 "         of digest to create and should be one of the following: \n"
 "      </para>\n"
 "      <simplelist>\n"
-"         <member><constant>MD2_DIGEST</constant></member>\n"
 "         <member><constant>MD5_DIGEST</constant></member>\n"
 "         <member><constant>SHA_DIGEST</constant></member>\n"
 "         <member><constant>SHA1_DIGEST</constant></member>\n"
@@ -6179,7 +6155,6 @@ static char pow_module_new_hmac__doc__[] =
 "         string and <parameter>type</parameter> should be one of the following: \n"
 "      </para>\n"
 "      <simplelist>\n"
-"         <member><constant>MD2_DIGEST</constant></member>\n"
 "         <member><constant>MD5_DIGEST</constant></member>\n"
 "         <member><constant>SHA_DIGEST</constant></member>\n"
 "         <member><constant>SHA1_DIGEST</constant></member>\n"
@@ -7081,7 +7056,6 @@ init_POW(void)
 #endif
 
    // message digests
-   install_int_const( d, "MD2_DIGEST",                MD2_DIGEST );
    install_int_const( d, "MD5_DIGEST",                MD5_DIGEST );
    install_int_const( d, "SHA_DIGEST",                SHA_DIGEST );
    install_int_const( d, "SHA1_DIGEST",               SHA1_DIGEST );

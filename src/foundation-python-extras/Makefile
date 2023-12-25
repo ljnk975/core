@@ -170,4 +170,5 @@ include POW.mk MySQL-python.mk Numeric.mk \
 	egenix-mx-base.mk libxml2dom.mk \
 	numarray.mk pexpect.mk IPy.mk docutils.mk \
 	SQLAlchemy.mk
-
+# ROCKS8: FIXME: Numeric and numarray obsolete? https://sourceforge.net/projects/numpy/
+# ROCKS8: POW does not compile with OpenSSL version 1.1.x and upwards

@@ -155,22 +155,26 @@ if [ `./_os` == "linux" ]; then
 	# needed to download the binary files
 	EXTRA_PACKAGES="$EXTRA_PACKAGES coreutils curl"
 	# packages needed for mysql dependency resolution
-	EXTRA_PACKAGES="$EXTRA_PACKAGES perl-DB perl-Time-HiRes perl-GD"
+	EXTRA_PACKAGES="$EXTRA_PACKAGES perl-Time-HiRes perl-GD"
 	# packages needed for gobject-introspection numpy pygobject 
-	EXTRA_PACKAGES="$EXTRA_PACKAGES flex bison glib2-devel pycairo-devel" 
-	EXTRA_PACKAGES="$EXTRA_PACKAGES cairo-gobject cairo-gobject-devel Cython" 
-	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel openssl-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo apr apr-devel expat-devel cmake $EXTRA_PACKAGES
+	EXTRA_PACKAGES="$EXTRA_PACKAGES flex bison glib2-devel" 
+	EXTRA_PACKAGES="$EXTRA_PACKAGES cairo-gobject cairo-gobject-devel" 
+	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo apr apr-devel expat-devel cmake $EXTRA_PACKAGES
 # install more packages for easy UCR roll build
-yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server python-inotify hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc
+yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc
 fi
 
 
 
 
 # 2. Foundation Packages
+compile_and_install foundation-openssl-old
 compile_and_install foundation-mysql
 compile_and_install foundation-python
 compile_and_install foundation-python-setuptools
+compile_and_install foundation-python-cython
+compile_and_install foundation-python-typing
+compile_and_install foundation-python-ptyprocess
 compile_and_install foundation-libxml2
 compile_and_install foundation-python-xml
 compile_and_install foundation-python-extras

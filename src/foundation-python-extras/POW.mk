@@ -133,6 +133,7 @@ build::
 		CPPFLAGS=-I/usr/sfw/include LDFLAGS=-L/usr/sfw/lib 	\
 			 $(PY.PATH) setup.py $(OPTIONS) build;		\
 		else							\
+		CPPFLAGS=-I/opt/rocks/include LDFLAGS=-L/opt/rocks/lib	\
 			$(PY.PATH) setup.py $(OPTIONS) build;		\
 		fi;							\
 	)

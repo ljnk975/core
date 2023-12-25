@@ -141,6 +141,7 @@ setenv ROCKS_ROOT /opt/rocks
 
 set BIN=${ROCKS_ROOT}/bin
 set SBIN=${ROCKS_ROOT}/bin
+set LIB=${ROCKS_ROOT}/lib
 
 if ( -d ${BIN}  ) then
 	echo ${PATH} | /bin/grep -q ${BIN} 
@@ -153,5 +154,12 @@ if ( -d ${SBIN}  ) then
 	echo ${PATH} | /bin/grep -q ${SBIN} 
 	if ( $? != 0) then
         	setenv PATH "${PATH}:${SBIN}"
+	endif
+endif
+
+if ( -d ${LIB}  ) then
+	echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB}
+	if ( $? != 0) then
+		setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${LIB}"
 	endif
 endif

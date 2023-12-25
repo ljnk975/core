@@ -111,19 +111,28 @@
 # - scipy stuff is here now (may move to hpc roll)
 #
 
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+PEXPECT_VERSION = 4.3.1
+
 build::
-	gunzip -c pexpect-0.97.tar.gz | $(TAR) -xf -
+# ROCKS8: Bump to version 4.3.1 (same as on Rocky8)
+# https://files.pythonhosted.org/packages/14/05/47c8bca66390c9b18c91f6152db4b74eb850382e8e13aa2f06dfb3036466/pexpect-4.3.1.tar.gz
+ifeq ($(shell ! test -f pexpect-$(PEXPECT_VERSION).tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading pexpect-$(PEXPECT_VERSION).tar.gz."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/14/05/47c8bca66390c9b18c91f6152db4b74eb850382e8e13aa2f06dfb3036466 -n pexpect-$(PEXPECT_VERSION).tar.gz
+endif
+	gunzip -c pexpect-$(PEXPECT_VERSION).tar.gz | $(TAR) -xf -
 	(								\
-		cd pexpect-0.97;					\
+		cd pexpect-$(PEXPECT_VERSION);				\
 		$(PY.PATH) setup.py build;				\
 	)
 	
 install::
 	(								\
-		cd pexpect-0.97;					\
+		cd pexpect-$(PEXPECT_VERSION);				\
 		$(PY.PATH) setup.py install --root=$(ROOT);		\
 	)
 
 
 clean::
-	rm -rf pexpect-0.97
+	rm -rf pexpect-$(PEXPECT_VERSION)

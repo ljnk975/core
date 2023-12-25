@@ -88,13 +88,32 @@ endif
 ifeq ($(strip $(VERSION.MAJOR)), 7)
 PYGOBJECT_VERSION	= 3.14.0
 endif
+
+ifeq ($(strip $(VERSION.MAJOR)), 8)
+# ROCKS8: Bump to version 2.28.7 (last in 2-series)
+# https://download.gnome.org/sources/pygobject/2.28/pygobject-2.28.7.tar.xz
+PYGOBJECT_VERSION	= 2.28.7
+endif
+
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+
+# build twice - first time, install into a temporary install directory
+# so that pygtk can link against it
 build::
-	gunzip -c pygobject-$(PYGOBJECT_VERSION).tar.gz | $(TAR) -xf -
+ifeq ($(shell ! test -f pygobject-$(PYGOBJECT_VERSION).tar.xz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading pygobject-$(PYGOBJECT_VERSION).tar.xz."
+	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/2.28 -n pygobject-$(PYGOBJECT_VERSION).tar.xz
+endif
+	unxz -c pygobject-$(PYGOBJECT_VERSION).tar.xz | $(TAR) -xf -
 	(								\
 		cd pygobject-$(PYGOBJECT_VERSION);			\
+		PATH=/opt/rocks/bin:$$PATH                              \
+		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:$$PKG_CONFIG_PATH     \
+		./configure --prefix=$(PWD)/../$(TMPINSTALL) --with-python=/opt/rocks/bin/python;    \
+		$(MAKE); $(MAKE) install; $(MAKE) clean;                \
 		PATH=/opt/rocks/bin:$$PATH				\
-		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:$PKG_CONFIG_PATH 		\
-			./configure --prefix=$(PKGROOT);		\
+		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
+		./configure --prefix=$(PKGROOT) --with-python=/opt/rocks/bin/python;	\
 		$(MAKE);						\
 	)
 	

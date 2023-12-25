@@ -70,12 +70,21 @@
 PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
 
 build:
+# ROCKS8: Same setuptools version as in Rocky8
+# https://files.pythonhosted.org/packages/72/c2/c09362ab29338413ab687b47dab03bab4a792e2bbb727a1eb5e0a88e3b86/setuptools-39.0.1.zip
+ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).zip && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).zip."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/72/c2/c09362ab29338413ab687b47dab03bab4a792e2bbb727a1eb5e0a88e3b86 -n $(PYPKGNAME)-$(VERSION).zip
+	unzip $(PYPKGNAME)-$(VERSION).zip
+else
 	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
+endif
 	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		cd $(PYPKGNAME)-$(VERSION);				\

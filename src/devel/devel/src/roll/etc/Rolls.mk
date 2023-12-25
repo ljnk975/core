@@ -293,6 +293,11 @@ ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 7)
 MKISOFSFLAGS = "-b isolinux/isolinux.bin -c isolinux/boot.cat -boot-load-size 4 -boot-info-table -no-emul-boot -eltorito-alt-boot -e images/efiboot.img -no-emul-boot -J -T" 
 endif
 
+# ROCKS8
+ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 8)
+MKISOFSFLAGS = "-b isolinux/isolinux.bin -c isolinux/boot.cat -boot-load-size 4 -boot-info-table -no-emul-boot -eltorito-alt-boot -e images/efiboot.img -no-emul-boot -J -T"
+endif
+
 ifeq ($(ROLLS),)
 WITHROLLS = 0
 else

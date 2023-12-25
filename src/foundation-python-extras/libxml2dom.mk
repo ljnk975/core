@@ -111,19 +111,27 @@
 # - scipy stuff is here now (may move to hpc roll)
 #
 
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+
 build::
-	gunzip -c libxml2dom-0.3.3.tar.gz | $(TAR) -xf -
+# ROCKS8: Bump to version 0.5 (latest, not available on Rocky8)
+# https://files.pythonhosted.org/packages/35/92/fbf67a6eb368faab70a2ec6473f5f370a868e766e20eb0e10678e97ae75f/libxml2dom-0.5.tar.bz2
+ifeq ($(shell ! test -f libxml2dom-0.5.tar.bz2 && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading libxml2dom-0.5.tar.bz2."
+	$(HTTPGET) -B https://files.pythonhosted.org -F packages/35/92/fbf67a6eb368faab70a2ec6473f5f370a868e766e20eb0e10678e97ae75f -n libxml2dom-0.5.tar.bz2
+endif
+	bunzip2 -c libxml2dom-0.5.tar.bz2 | $(TAR) -xf -
 	(								\
-		cd libxml2dom-0.3.3;					\
+		cd libxml2dom-0.5;					\
 		$(PY.PATH) setup.py build;				\
 	)
 	
 install::
 	(								\
-		cd libxml2dom-0.3.3;					\
+		cd libxml2dom-0.5;					\
 		$(PY.PATH) setup.py install --root=$(ROOT);		\
 	)
 
 
 clean::
-	rm -rf libxml2dom-0.3.3
+	rm -rf libxml2dom-0.5
