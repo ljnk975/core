@@ -193,7 +193,7 @@ ifeq ($(strip $(VERSION.MAJOR)),5)
 endif	
 	( 								\
 		cd Python-$(VERSION);					\
-		./configure $(ADDFLAGS) --prefix=$(PKGROOT) 		\
+		$(ADDVARS) ./configure $(ADDFLAGS) --prefix=$(PKGROOT) 	\
 				$(CONFIGOPTS);				\
 		$(MAKE);						\
 	)

@@ -161,7 +161,7 @@ if [ `./_os` == "linux" ]; then
 	EXTRA_PACKAGES="$EXTRA_PACKAGES cairo-gobject cairo-gobject-devel" 
 	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo apr apr-devel expat-devel cmake $EXTRA_PACKAGES
 # install more packages for easy UCR roll build
-yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc
+yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc rpcgen atk-devel pango-devel gtk2-devel glade-libs glade-devel lapack perl-WWW-Curl perl-DBI libffi-devel
 fi
 
 

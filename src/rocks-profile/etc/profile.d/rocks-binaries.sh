@@ -160,7 +160,7 @@ fi
 
 if [ -d ${LIB} ]; then
 	if ! echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB} ; then
-		export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${LIB}
+		export LD_LIBRARY_PATH=${LIB}:${LD_LIBRARY_PATH}
 	fi
 fi
 
