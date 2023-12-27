@@ -85,7 +85,7 @@ endif
 	gunzip -c openssl-$(VERSION).tar.gz | $(TAR) -xf -
 	(								\
 		cd openssl-$(VERSION);					\
-		./config --prefix=$(PKGROOT) --shared;			\
+		./config --prefix=$(PKGROOT) -fPIC;			\
 		$(MAKE);						\
 	)
 

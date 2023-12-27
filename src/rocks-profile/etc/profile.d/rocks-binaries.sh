@@ -157,10 +157,10 @@ if [ -d ${SBIN} ]; then
         	export PATH=${PATH}:${SBIN}
 	fi
 fi
-
-if [ -d ${LIB} ]; then
-	if ! echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB} ; then
-		export LD_LIBRARY_PATH=${LIB}:${LD_LIBRARY_PATH}
-	fi
-fi
+#
+#if [ -d ${LIB} ]; then
+#	if ! echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB} ; then
+#		export LD_LIBRARY_PATH=${LIB}:${LD_LIBRARY_PATH}
+#	fi
+#fi
 

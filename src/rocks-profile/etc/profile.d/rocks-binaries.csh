@@ -156,10 +156,10 @@ if ( -d ${SBIN}  ) then
         	setenv PATH "${PATH}:${SBIN}"
 	endif
 endif
-
-if ( -d ${LIB}  ) then
-	echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB}
-	if ( $? != 0) then
-		setenv LD_LIBRARY_PATH "${LIB}:${LD_LIBRARY_PATH}"
-	endif
-endif
+#
+#if ( -d ${LIB}  ) then
+#	echo ${LD_LIBRARY_PATH} | /bin/grep -q ${LIB}
+#	if ( $? != 0) then
+#		setenv LD_LIBRARY_PATH "${LIB}:${LD_LIBRARY_PATH}"
+#	endif
+#endif

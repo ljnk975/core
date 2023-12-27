@@ -178,7 +178,6 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-
 build:
 # https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
 ifeq ($(shell ! test -f Python-$(VERSION).tar.gz && echo -n yes),yes)
@@ -188,12 +187,9 @@ ifeq ($(shell ! test -f Python-$(VERSION).tar.gz && echo -n yes),yes)
 endif
 	gunzip -c Python-$(VERSION).tar.gz | $(TAR) -xf -
 	-cd patch-files-$(ARCH) && find . -type f | grep -v CVS | cpio -pduv ../
-ifeq ($(strip $(VERSION.MAJOR)),5)
-	patch -p0 < patch-$(VERSION)-$(ARCH)
-endif	
 	( 								\
 		cd Python-$(VERSION);					\
-		$(ADDVARS) ./configure $(ADDFLAGS) --prefix=$(PKGROOT) 	\
+		./configure $(ADDFLAGS) --prefix=$(PKGROOT) 		\
 				$(CONFIGOPTS);				\
 		$(MAKE);						\
 	)
