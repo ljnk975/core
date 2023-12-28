@@ -76,25 +76,28 @@ include Rules.mk
 
 
 build:
-# ROCKS8: Same setuptools version as in Rocky8
-# https://files.pythonhosted.org/packages/72/c2/c09362ab29338413ab687b47dab03bab4a792e2bbb727a1eb5e0a88e3b86/setuptools-39.0.1.zip
-ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).zip && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).zip."
-	$(HTTPGET) -B https://files.pythonhosted.org -F packages/72/c2/c09362ab29338413ab687b47dab03bab4a792e2bbb727a1eb5e0a88e3b86 -n $(PYPKGNAME)-$(VERSION).zip
-	unzip $(PYPKGNAME)-$(VERSION).zip
-else
-	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
+# ROCKS8: Replacement for rpm-python in obsolete foundation-redhat (RPM version same as on Rocky8)
+# https://ftp.osuosl.org/pub/rpm/releases/rpm-4.14.x/rpm-4.14.3.tar.bz2
+# We build just the Python module.
+ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.bz2 && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.bz2."
+	$(HTTPGET) -B https://ftp.osuosl.org -F pub/rpm/releases/rpm-4.14.x -n $(PYPKGNAME)-$(VERSION).tar.bz2
 endif
+	bunzip2 -c $(PYPKGNAME)-$(VERSION).tar.bz2 | $(TAR) -xf -
 #	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		cd $(PYPKGNAME)-$(VERSION);				\
+		PYTHON=$(PY.PATH) ././configure --prefix=$(ROOT) 	\
+		--with-crypto=beecrypt --without-lua;			\
+		$(MAKE);						\
+		cd python;						\
 		$(PY.PATH) setup.py build;				\
 	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(								\
-		cd $(PYPKGNAME)-$(VERSION);				\
+		cd $(PYPKGNAME)-$(VERSION)/python;			\
 		$(PY.PATH) setup.py install --root=$(ROOT);		\
 	)
 

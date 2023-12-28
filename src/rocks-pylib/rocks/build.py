@@ -1268,7 +1268,7 @@ class DistributionBuilder(Builder):
 
 		self.insertNetstage()
 		self.buildKickstart()
-		print '     Calling Yum genpkgmetadata.py'
+		print '     Calling createrepo'
 		self.createrepo()
 		print '     Rebuilding Product Image including md5 sums'
 		self.buildProductImg()
@@ -1437,9 +1437,11 @@ class DistributionBuilder(Builder):
 	# first check in the install environment (/tmp/updates), then
 	# look in the 'normal' place (on a running frontend).
 	#
-	createrepo = '/tmp/updates/usr/share/createrepo/genpkgmetadata.py'
-	if not os.path.exists(createrepo):
-		createrepo = '/usr/share/createrepo/genpkgmetadata.py'
+        # ROCKS8 createrepo replaced by createrepo_c
+        createrepo = '/usr/bin/createrepo_c'
+	#createrepo = '/tmp/updates/usr/share/createrepo/genpkgmetadata.py'
+	#if not os.path.exists(createrepo):
+        #	createrepo = '/usr/share/createrepo/genpkgmetadata.py'
 
 
 	groupfile = "%s/RedHat/base/comps.xml" % releasedir

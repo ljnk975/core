@@ -308,8 +308,6 @@ function bootstrap_init() {
 	# download binaries if necessary
 	metadata=`ls .*.metadata`
 	if [ -f "$metadata" ]; then
-		# unset ROLLSROOT during core bootstrap for download from
-		# new rocks source repo at http://sources.rocksclusters.org
 		if [ "$ROLLSROOT" ]; then
 			$ROLLSROOT/../../bin/get_sources.sh
 		else

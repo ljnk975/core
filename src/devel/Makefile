@@ -106,5 +106,5 @@ install::
 	$(INSTALL) -m0555 rocks-devel.csh $(ROOT)/etc/profile.d
 	(								\
 		cd devel;						\
-		find . | grep -v CVS | cpio -pduv $(ROOT)/$(PKGROOT)/;		\
+		find . | grep -v CVS | cpio -pduv $(ROOT)/$(PKGROOT)/;	\
 	)

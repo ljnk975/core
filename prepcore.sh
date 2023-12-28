@@ -61,9 +61,15 @@
 # @Copyright@
 #
 
+echo "################################################################################"
+echo "# prepcore.sh: 1. source bootstrap functions"
+echo "################################################################################"
 . src/devel/devel/src/roll/etc/bootstrap-functions.sh
 
 # 2. Create a fake bootstrap appliance, network, and host in the database
+echo "################################################################################"
+echo "# prepcore.sh: 2. Create a fake bootstrap appliance, network, and host"
+echo "################################################################################"
 if [ `hostname | grep localhost` ] ; then
 	# some built host (aka batlab) uses hostname == localhost
 	# this confuses really all rocks command so let's avoid that
@@ -71,7 +77,6 @@ if [ `hostname | grep localhost` ] ; then
 else
 	MYNAME=`hostname -s`
 fi
-
 /opt/rocks/bin/rocks add distribution rocks-dist
 /opt/rocks/bin/rocks add appliance bootstrap node=server
 /opt/rocks/bin/rocks add host $MYNAME rack=0 rank=0 membership=bootstrap
@@ -81,12 +86,18 @@ fi
 /opt/rocks/bin/rocks add attr arch `./_arch` 
 
 # 2.5 add the Kickstart_PublicAddress
+echo "################################################################################"
+echo "# prepcore.sh: 2.5 add the Kickstart_PublicAddress"
+echo "################################################################################"
 device=$(/usr/sbin/ip route list 0.0.0.0/0 | /usr/bin/cut -d ' ' -f5)
-ipaddr=$(/usr/sbin/ip -4 address show dev eth0 | /usr/bin/grep inet | /usr/bin/awk '{print $2}' | /usr/bin/cut -d/ -f1)
+ipaddr=$(/usr/sbin/ip -4 address show dev $device | /usr/bin/grep inet | /usr/bin/awk '{print $2}' | /usr/bin/cut -d/ -f1)
 /opt/rocks/bin/rocks add attr Kickstart_PublicAddress $ipaddr
 /opt/rocks/bin/rocks add attr distribution rocks-dist 
 
 # 3. Add appliance types so that we can build the OS Roll
+echo "################################################################################"
+echo "# prepcore.sh: 3. Add appliance types so that we can build the OS Roll"
+echo "################################################################################"
 /opt/rocks/bin/rocks add attr Kickstart_DistroDir /export/rocks
 /opt/rocks/bin/rocks add attr Kickstart_PrivateKickstartBasedir install
 /opt/rocks/bin/rocks add appliance compute graph=default node=compute membership=Compute public=yes
@@ -94,9 +105,15 @@ ipaddr=$(/usr/sbin/ip -4 address show dev eth0 | /usr/bin/grep inet | /usr/bin/a
 /opt/rocks/bin/rocks add attr rocks_version_major `/opt/rocks/bin/rocks report version major=1`
 
 # 4. Rest of packages for full build
+echo "################################################################################"
+echo "# prepcore.sh: 4. Rest of packages for full build"
+echo "################################################################################"
 if [ `./_os` == "linux" ]; then
         install_os_packages bootstrap-packages-core
 fi
 
 # 5. Add a rocks distribution to system
+echo "################################################################################"
+echo "# prepcore.sh: 5. Add a rocks distribution to system"
+echo "################################################################################"
 cat nodes/yum-core.xml | /opt/rocks/bin/rocks report post attrs="`/opt/rocks/bin/rocks report host attr localhost pydict=true`" | sh

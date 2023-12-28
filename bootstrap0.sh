@@ -141,12 +141,17 @@ if [ "$?" != "0" ]; then
 fi
 
 # 0. directory structure
-# 
+echo "################################################################################"
+echo "# bootstrap0.sh: 0. directory structure"
+echo "################################################################################"
 if [ ! -d /export/rocks/install/rolls ]; then
 	mkdir -p /export/rocks/install/rolls
 fi
 
 # 1. other system packages (need similar for solaris)
+echo "################################################################################"
+echo "# bootstrap0.sh: 1. other system packages (need similar for solaris)"
+echo "################################################################################"
 if [ `./_os` == "linux" ]; then
 	#needed to run rocks create mirror
 	EXTRA_PACKAGES="wget genisoimage"
@@ -159,15 +164,15 @@ if [ `./_os` == "linux" ]; then
 	# packages needed for gobject-introspection numpy pygobject 
 	EXTRA_PACKAGES="$EXTRA_PACKAGES flex bison glib2-devel" 
 	EXTRA_PACKAGES="$EXTRA_PACKAGES cairo-gobject cairo-gobject-devel" 
-	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo apr apr-devel expat-devel cmake $EXTRA_PACKAGES
+	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo_c apr apr-devel expat-devel cmake $EXTRA_PACKAGES
 # install more packages for easy UCR roll build
-yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc rpcgen atk-devel pango-devel gtk2-devel glade-libs glade-devel lapack perl-WWW-Curl perl-DBI libffi-devel
+yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc rpcgen atk-devel pango-devel gtk2-devel glade-libs glade-devel lapack perl-WWW-Curl perl-DBI libffi-devel file-devel beecrypt beecrypt-devel
 fi
 
-
-
-
 # 2. Foundation Packages
+echo "################################################################################"
+echo "# bootstrap0.sh: 2. Foundation Packages"
+echo "################################################################################"
 compile_and_install foundation-openssl-old
 compile_and_install foundation-mysql
 compile_and_install foundation-python
@@ -182,6 +187,9 @@ compile_and_install foundation-PyYAML
 compile_and_install foundation-rcs
 
 # 3. Rocks  config, pylib, and kickstart, commands  
+echo "################################################################################"
+echo "# bootstrap0.sh: 3. Rocks  config, pylib, and kickstart, commands"
+echo "################################################################################"
 compile admin 
 install rocks-admin
 compile config
@@ -193,9 +201,15 @@ compile devel
 install rocks-devel
 
 # 4. Make sure we have updated paths
+echo "################################################################################"
+echo "# bootstrap0.sh: 4. Make sure we have updated paths"
+echo "################################################################################"
 . /etc/profile.d/rocks-binaries.sh
 
 # 5. Bootstrap the database
+echo "################################################################################"
+echo "# bootstrap0.sh: 5. Bootstrap the database"
+echo "################################################################################"
 tmpfile=$(/bin/mktemp)
 /bin/cat nodes/database.xml nodes/database-schema.xml nodes/database-sec.xml | /opt/rocks/bin/rocks report post attrs="{'hostname':'', 'HttpRoot':'/var/www/html','os':'linux'}"  > $tmpfile
 if [ $? != 0 ]; then
@@ -206,6 +220,8 @@ fi
 /bin/rm $tmpfile
 
 # 6. Prep as if this were a devel server
-# this creates OS and updates roll, adds some appliance definitions,
-# and adds various packages needed for bootstrapping. 
+echo "################################################################################"
+echo "# bootstrap0.sh: 6. Prep as if this were a devel server"
+echo "################################################################################"
+# This adds some appliance definitions and adds various packages needed for bootstrapping. 
 ./prepcore.sh

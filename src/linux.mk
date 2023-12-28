@@ -55,9 +55,16 @@
 # @Copyright@
 #
 
+# ROCKS8: 	dropping foundation-git (always present on host)
+# ROCKS8 FIXME: foundation-coreutils, foundation-wget and others also not necessary?
+# ROCKS8:	dropping foundation-redhat in favour of foundation-newt and
+# 		foundation-python-rpm
 -include $(CURDIR)/devel/devel/etc/rocks-version.mk
-SRCDIRS = `find . -type d -maxdepth 1 \
+SRCDIRS = `find . -maxdepth 1 -type d \
 	-not -name CVS \
+	-not -name foundation-git \
+	-not -name foundation-coreutils \
+	-not -name foundation-wget \
+	-not -name foundation-redhat \
 	-not -name . `
-
 

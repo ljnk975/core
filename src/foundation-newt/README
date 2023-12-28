@@ -1,0 +1,4 @@
+Replacement for newt-python
+- Version 0.52.20 is installed on Rocky8
+- https://pagure.io/newt/archive/r0-52-20/newt-r0-52-20.tar.gz
+- Makefile.in patched for static linkage of libnewt info _snack.so

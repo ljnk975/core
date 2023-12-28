@@ -136,15 +136,22 @@
 PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
 ROCKSROOT       = ../devel/devel
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
 
 build:
-	gunzip -c coreutils-$(VERSION).tar.gz | $(TAR) -xf - 
-	( 								\
-		cd coreutils-$(VERSION);				\
-		FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=$(PKGROOT);	 		\
+# ROCKS8 bump to 8.30 (same as on Rocky8)
+# https://ftp.gnu.org/gnu/coreutils/coreutils-8.30.tar.xz
+ifeq ($(shell ! test -f coreutils-$(VERSION).tar.xz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading coreutils-$(VERSION).tar.xz."
+	$(HTTPGET) -B https://ftp.gnu.org -F gnu/coreutils -n coreutils-$(VERSION).tar.xz
+endif
+	unxz -c coreutils-$(VERSION).tar.xz | $(TAR) -xf - 
+	( 									\
+		cd coreutils-$(VERSION);					\
+		FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=$(PKGROOT);	\
 		$(MAKE);							\
 	)
 

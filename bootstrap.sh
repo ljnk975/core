@@ -80,14 +80,12 @@ fi
 #compile_and_install foundation-python-extras
 #compile_and_install foundation-rcs
 
-compile_and_install foundation-coreutils
-compile_and_install foundation-gawk
-compile_and_install foundation-wget
-compile_and_install foundation-PyYAML
+#compile_and_install foundation-coreutils
+#compile_and_install foundation-wget
 
 compile_and_install librocks
-compile_and_install rocks-pylib
-compile_and_install rocks-profile
+#compile_and_install rocks-pylib
+#compile_and_install rocks-profile
 
 if [ `./_os` == "linux" ]; then
 	install_os_packages server

@@ -156,7 +156,7 @@ install::
 			$(MAKE) DESTDIR=$(ROOT) install;		\
 	)
 	# leftover of built script DESTDIR= is not fully respected
-	- rm -r $(ROOT)/usr
+	- rm -rf $(ROOT)/usr
 
 clean::
 	rm -rf graphviz-$(VERSION)
