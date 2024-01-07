@@ -143,25 +143,47 @@
 	
 	</changelog>
 
-	<package os='linux'>foundation-redhat</package>
+	<package os='linux'>foundation-graphviz</package>
+	<package os='linux'>foundation-libxml2</package>
+	<package os='linux'>foundation-mysql</package>
+	<package os='linux'>foundation-newt</package>
+	<package os='linux'>foundation-openssl-old</package>
 	<package os='linux'>foundation-python</package>
+	<package os='linux'>foundation-python-blivet</package>
+	<package os='linux'>foundation-python-blockdev</package>
+	<package os='linux'>foundation-python-bytesize</package>
+	<package os='linux'>foundation-python-cython</package>
+	<package os='linux'>foundation-python-enum34</package>
 	<package os='linux'>foundation-python-extras</package>
+	<package os='linux'>foundation-python-gobject-introspection</package>
+	<package os='linux'>foundation-python-ptyprocess</package>
+	<package os='linux'>foundation-python-pycairo</package>
+	<package os='linux'>foundation-python-pygobject</package>
+	<package os='linux'>foundation-python-pykickstart</package>
+	<package os='linux'>foundation-python-pyparted</package>
+	<package os='linux'>foundation-python-pyudev</package>
+	<package os='linux'>foundation-python-rpm</package>
+	<package os='linux'>foundation-python-selinux</package>
 	<package os='linux'>foundation-python-setuptools</package>
+	<package os='linux'>foundation-python-six</package>
+	<package os='linux'>foundation-python-sphinx</package>
+	<package os='linux'>foundation-python-typing</package>
 	<package os='linux'>foundation-python-xml</package>
 	<package os='linux'>foundation-PyYAML</package>
-	<package os='linux'>foundation-graphviz</package>
-	<package os='linux'>foundation-coreutils</package>
 	<package os='linux'>foundation-rcs</package>
-	<package os='linux'>foundation-gawk</package>
-	<package os='linux'>foundation-mysql</package>
-	<package os='linux'>foundation-libxml2</package>
-	<package os='linux'>foundation-wget</package>
 	<package os='linux'>foundation-ant</package>
-	<package os='linux'>foundation-git</package>
 
-	<!-- needed by foundation-git -->
-	<package os='linux'>perl-Error</package>
-	<package os='linux'>wget</package>
+	<!-- needed by foundation-newt -->
+	<package os='linux'>perl-WWW-Curl</package>
+	<package os='linux'>perl-DBI</package>
+	<!-- neede by others -->
+	<package os='linux'>lapack</package>
+	<package os='linux'>libffi</package>
+	<package os='linux'>beecrypt</package>
+	<package os='linux'>libtirpc</package>
+	<package os='linux'>libnsl2</package>
+	<package os='linux'>tcp_wrappers-libs</package>
+	<package os='linux'>tcp_wrappers</package>
 
 	<package os='sunos'>ROCKSfoundation-python</package>
 	<package os='sunos'>ROCKSfoundation-python-xml</package>

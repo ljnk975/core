@@ -178,8 +178,8 @@
   <package arch="i386">dietlibc</package>
   <package cond="rocks_version_major == 6">gtk+</package>
   <package cond="rocks_version_major == 6">gtk+-devel</package>
-  <package cond="rocks_version_major == 7">gtk3</package>
-  <package cond="rocks_version_major == 7">gtk3-devel</package>
+  <package cond="rocks_version_major &gt;= 7">gtk3</package>
+  <package cond="rocks_version_major &gt;= 7">gtk3-devel</package>
   <package>vim-enhanced</package>
   <package>e2fsprogs-devel</package>
   <package>libselinux-devel</package>
@@ -200,7 +200,7 @@
 
   <!-- For makedepend -->
   <package cond="rocks_version_major == 6">xorg-x11-devel</package>
-  <package cond="rocks_version_major == 7">imake</package>
+  <package cond="rocks_version_major &gt;= 7">imake</package>
 
   <package arch="i386">dev86</package>
 

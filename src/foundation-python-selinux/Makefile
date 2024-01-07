@@ -1,5 +1,5 @@
-#
-# $Id: pygobject.mk,v 1.8 2012/11/27 00:48:36 phil Exp $
+# --------------------------------------------------- -*- Makefile -*- --
+# $Id: Makefile,v 1.3 2012/11/27 00:48:37 phil Exp $
 #
 # @Copyright@
 # 
@@ -55,77 +55,60 @@
 # 
 # @Copyright@
 #
-# $Log: pygobject.mk,v $
-# Revision 1.8  2012/11/27 00:48:36  phil
+# $Log: Makefile,v $
+# Revision 1.3  2012/11/27 00:48:37  phil
 # Copyright Storm for Emerald Boa
 #
-# Revision 1.7  2012/05/06 05:48:43  phil
+# Revision 1.2  2012/05/06 05:48:43  phil
 # Copyright Storm for Mamba
 #
-# Revision 1.6  2011/07/23 02:30:45  phil
-# Viper Copyright
-#
-# Revision 1.5  2010/09/07 23:53:06  bruno
-# star power for gb
-#
-# Revision 1.4  2009/05/01 19:07:06  mjk
-# chimi con queso
-#
-# Revision 1.3  2008/10/18 00:56:00  mjk
-# copyright 5.1
-#
-# Revision 1.2  2008/03/06 23:41:43  mjk
-# copyright storm on
-#
-# Revision 1.1  2008/01/14 17:27:29  bruno
-# updates for V
+# Revision 1.1  2012/02/01 20:42:59  phil
+# Setuptools needed for MYSQL-python build on Rocks v. 6
 #
 #
-ifeq ($(strip $(VERSION.MAJOR)), 6)
-PYGOBJECT_VERSION	= 2.14.1
-endif
 
-ifeq ($(strip $(VERSION.MAJOR)), 7)
-PYGOBJECT_VERSION	= 3.14.0
-endif
-
-ifeq ($(strip $(VERSION.MAJOR)), 8)
-# ROCKS8: Bump to version 2.28.7 (last in 2-series)
-# https://download.gnome.org/sources/pygobject/2.28/pygobject-2.28.7.tar.xz
-# https://gitlab.gnome.org/GNOME/pygobject/-/blob/master/NEWS: 3.36.1 is last 
-# release supporting Python 2.
-# https://download.gnome.org/sources/pygobject/3.36/pygobject-3.36.1.tar.xz
-PYGOBJECT_VERSION	= 3.36.1
-endif
-
-# ROCKS8: inactive code, now trasferred to foundation-python-pygobject
-
+PKGROOT		= /opt/rocks
+REDHAT.ROOT     = $(CURDIR)/../../
+ROCKSROOT       = ../devel/devel
 HTTPGET         = ../../src/devel/devel/bin/httpget.sh
+-include $(ROCKSROOT)/etc/Rules.mk
+include Rules.mk
 
-# install twice - first time, install into a temporary install directory
-# so that pygtk can link against it
-build::
-ifeq ($(shell ! test -f pygobject-$(PYGOBJECT_VERSION).tar.xz && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading pygobject-$(PYGOBJECT_VERSION).tar.xz."
-	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/3.36 -n pygobject-$(PYGOBJECT_VERSION).tar.xz
+
+build:
+# ROCKS8: Creates missing python-libselinux
+# https://download.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/l/libselinux-2.9-8.el8.src.rpm
+# Extract sources from src-rpm and build 
+ifeq ($(shell ! test -f libselinux-$(VERSION)-$(RELEASE).el8.src.rpm && echo -n yes),yes)
+	@echo "ROCKS8: libselinux-$(VERSION)-$(RELEASE).el8.src.rpm."
+	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/BaseOS/source/tree/Packages/l -n libselinux-$(VERSION)-$(RELEASE).el8.src.rpm
 endif
-	unxz -c pygobject-$(PYGOBJECT_VERSION).tar.xz | $(TAR) -xf -
-	(										\
-		cd pygobject-$(PYGOBJECT_VERSION);					\
-		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:$$PKG_CONFIG_PATH	\
-		$(PY.PATH) setup.py build;						\
-		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:$$PKG_CONFIG_PATH    \
-		$(PY.PATH) setup.py install --root=$(PWD)/../tmpinstall;		\
+	(								\
+		mkdir content && cd content;				\
+		rpm2cpio ../libselinux-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
+		mv lib$(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;	\
+		tar xf lib$(PYPKGNAME)-$(VERSION).tar.gz;		\
+		cd lib$(PYPKGNAME)-$(VERSION);				\
+		PATCHES=`ls ../content/*.patch`;			\
+		for pat in $$PATCHES; do patch -p2 < $$pat; done;	\
+		export DISABLE_RPM="n";					\
+		export USE_PCRE2="y";					\
+		$(MAKE) clean;						\
+		$(MAKE) swigify;					\
+		$(MAKE) all;						\
+		$(MAKE) PYTHON=$(PY.PATH) pywrap;			\
 	)
-	
+
 install::
-	(										\
-		cd pygobject-$(PYGOBJECT_VERSION);					\
-		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:$$PKG_CONFIG_PATH	\
-		$(PY.PATH) setup.py install --root=$(ROOT);				\
+	mkdir -p $(ROOT)/$(PKGROOT)
+	(								\
+		cd lib$(PYPKGNAME)-$(VERSION); 				\
+		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) PREFIX=/opt/rocks install-pywrap;\
+		mv $(ROOT)/opt/rocks/lib/python2.7/site-packages/selinux/_selinux.so $(ROOT)/opt/rocks/lib/python2.7/site-packages; \
+		$(PY.PATH) -m compileall $(ROOT);			\
+		$(PY.PATH) -OO -m compileall $(ROOT);			\
 	)
 
 
 clean::
-	rm -rf pygobject-$(PYGOBJECT_VERSION)
-
+	rm -rf lib$(PYPKGNAME)-$(VERSION)

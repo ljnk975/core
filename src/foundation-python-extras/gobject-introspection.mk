@@ -54,6 +54,8 @@
 # @Copyright@
 #
 
+# ROCKS - inactive code, transferred to foundation-python-gobject-introspection
+
 HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 GOBJECT_VERSION	= 1.56.1
 GOBJ = gobject-introspection

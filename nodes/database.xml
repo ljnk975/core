@@ -316,8 +316,8 @@
   <package os='linux' cond="rocks_version_major == 6">mysql</package>
   <package os='linux' cond="rocks_version_major == 6">mysql-server</package>
   <package os='linux' cond="rocks_version_major == 6">mysql-devel</package>
-  <package os='linux' cond="rocks_version_major == 7">mariadb</package>
-  <package os='linux' cond="rocks_version_major == 7">mariadb-devel</package>
+  <package os='linux' cond="rocks_version_major &gt;= 7">mariadb</package>
+  <package os='linux' cond="rocks_version_major &gt;= 7">mariadb-devel</package>
   <package os='linux'>perl</package>
   <package os='linux'>perl-Data-Dumper</package>
   <package os='linux'>perl-Getopt-Long</package>

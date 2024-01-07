@@ -1,5 +1,5 @@
-#
-# $Id: pycairo.mk,v 1.8 2012/11/27 00:48:36 phil Exp $
+# --------------------------------------------------- -*- Makefile -*- --
+# $Id: Makefile,v 1.3 2012/11/27 00:48:37 phil Exp $
 #
 # @Copyright@
 # 
@@ -55,60 +55,74 @@
 # 
 # @Copyright@
 #
-# $Log: pycairo.mk,v $
-# Revision 1.8  2012/11/27 00:48:36  phil
+# $Log: Makefile,v $
+# Revision 1.3  2012/11/27 00:48:37  phil
 # Copyright Storm for Emerald Boa
 #
-# Revision 1.7  2012/05/06 05:48:43  phil
+# Revision 1.2  2012/05/06 05:48:43  phil
 # Copyright Storm for Mamba
 #
-# Revision 1.6  2011/07/23 02:30:45  phil
-# Viper Copyright
-#
-# Revision 1.5  2010/09/07 23:53:06  bruno
-# star power for gb
-#
-# Revision 1.4  2009/05/01 19:07:06  mjk
-# chimi con queso
-#
-# Revision 1.3  2008/10/18 00:56:00  mjk
-# copyright 5.1
-#
-# Revision 1.2  2008/03/06 23:41:43  mjk
-# copyright storm on
-#
-# Revision 1.1  2008/01/14 17:27:29  bruno
-# updates for V
+# Revision 1.1  2012/02/01 20:42:59  phil
+# Setuptools needed for MYSQL-python build on Rocks v. 6
 #
 #
 
-# ROCKS8: inactive code, trafsferred to foundation-python-pycairo
-
+PKGROOT		= /opt/rocks
+REDHAT.ROOT     = $(CURDIR)/../../
+ROCKSROOT       = ../devel/devel
 HTTPGET         = ../../src/devel/devel/bin/httpget.sh
-PYCAIRO_VERSION	= 1.16.3
+-include $(ROCKSROOT)/etc/Rules.mk
+include Rules.mk
 
-build::
-# ROCKS8: Bump to version 1.16.3 (same as on Rocky8)
-# https://files.pythonhosted.org/packages/a4/95/e8cb30180a87653aa130a20d3cc91021833e2d0024b6880f197bf315fe09/pycairo-1.16.3.tar.gz
-# Includes secondary install into tmpinstall for subsequent pygtk-build
-ifeq ($(shell ! test -f pycairo-$(PYCAIRO_VERSION).tar.gz && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading pycairo-$(PYCAIRO_VERSION).tar.gz."
-	$(HTTPGET) -B https://files.pythonhosted.org -F packages/a4/95/e8cb30180a87653aa130a20d3cc91021833e2d0024b6880f197bf315fe09 -n pycairo-$(PYCAIRO_VERSION).tar.gz
+
+build:
+# ROCKS8: Creates missing python-blivet package
+# http://vault.centos.org/7.9.2009/updates/Source/SPackages/python-blivet-0.61.15.76-1.el7_9.src.rpm
+# https://download.rockylinux.org/pub/rocky/8/AppStream/source/tree/Packages/p/python-blivet-3.6.0-7.el8.src.rpm
+# Extract sources from src-rpm and build 
+ifeq ($(shell ! test -f python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm."
+	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/AppStream/source/tree/Packages/p -n python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm
 endif
-	gunzip -c pycairo-$(PYCAIRO_VERSION).tar.gz | $(TAR) -xf -
+#ifeq ($(shell ! test -f python-blivet-$(VERSION)-1.el7_9.src.rpm && echo -n yes),yes)
+#	@echo "ROCKS8: python-blivet-$(VERSION)-1.el7_9.src.rpm."
+#	$(HTTPGET) -B http://vault.centos.org -F 7.9.2009/updates/Source/SPackages -n python-blivet-$(VERSION)-1.el7_9.src.rpm
+#endif
 	(								\
-		cd pycairo-$(PYCAIRO_VERSION);				\
-		$(PY.PATH) setup.py build;                              \
-		$(PY.PATH) setup.py install --root=$(PWD)/.. --prefix=/tmpinstall;	\
-	)
-	
-install::
-	(								\
-		cd pycairo-$(PYCAIRO_VERSION);				\
-		$(PY.PATH) setup.py install --root=$(ROOT);             \
+		mkdir content && cd content;				\
+		rpm2cpio ../python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
+		mv $(PYPKGNAME)-$(VERSION)*.tar.gz ../ && cd ..;	\
+		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
+		tar xf $(PYPKGNAME)-$(VERSION)-tests.tar.gz;		\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		PATCHES=`ls ../content/00*`;				\
+		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
+		cd ../patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) PYTHON=$(PY.PATH);				\
 	)
 
+
+#	(								\
+#		mkdir content && cd content;				\
+#		rpm2cpio ../python-blivet-0.61.15.76-1.el7_9.src.rpm | cpio -idmv; \
+#		mv $(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;		\
+#		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
+#		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
+#		cd $(PYPKGNAME)-$(VERSION);				\
+#		$(MAKE) PYTHON=$(PY.PATH);				\
+#	)
+
+install::
+	mkdir -p $(ROOT)/$(PKGROOT)
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) install;	\
+		rm -f $(ROOT)/etc/dbus-1/system.d/blivet.conf;		\
+		rm -f $(ROOT)/usr/lib/systemd/system/blivet.service;	\
+		rm -f $(ROOT)/usr/libexec/blivetd;			\
+		rm -f $(ROOT)/usr/share/dbus-1/system-services/com.redhat.Blivet0.service;	\
+	)
 
 clean::
-	rm -rf pycairo-$(PYCAIRO_VERSION)
-
+	rm -rf $(PYPKGNAME)-$(VERSION)

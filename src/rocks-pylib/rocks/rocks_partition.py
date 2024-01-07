@@ -11,11 +11,13 @@ import sys
 import rocks
 
 ## For CentOS/RedHat7 use blivet
+## ROCKS8 uses foundation-python-blivet
 try:
 	import blivet
 except ImportError:
-	sys.path.append('/usr/lib/python2.7/site-packages')
-	sys.path.append('/usr/lib64/python2.7/site-packages')
+        sys.path.append('/opt/rocks/lib/python2.7/site-packages')
+	#sys.path.append('/usr/lib/python2.7/site-packages')
+	#sys.path.append('/usr/lib64/python2.7/site-packages')
 	import blivet
 import time
 

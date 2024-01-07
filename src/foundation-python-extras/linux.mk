@@ -6,7 +6,10 @@ endif
 ifeq ($(strip $(VERSION.MAJOR)), 6)
 GOBJECT =
 else
-GOBJECT = gobject-introspection.mk
+# GOBJECT = gobject-introspection.mk
 endif
 # include $(GOBOJECT) pygobject.mk pygtk.mk M2Crypto.mk $(SSLMK) numpy.mk pycairo.mk
-include gobject-introspection.mk pygobject.mk pygtk.mk M2Crypto.mk $(SSLMK) numpy.mk pycairo.mk
+# ROCKS8 pygobject.mk now separated to foundation-python-pygobject
+#        pycairo.mk now separated to foundation-python-pycairo
+#        gobject-introspection.mk now separated to foundation-python-gobject-introspection
+include numpy.mk pygtk.mk M2Crypto.mk $(SSLMK)

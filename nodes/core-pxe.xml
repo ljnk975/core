@@ -40,7 +40,8 @@ chmod 775 /tftpboot/pxelinux/pxelinux.cfg
 
 </post>
 
-<post cond="rocks_version_major == 7">
+<!-- ROCKS8 ... was rocks_version_major 7 before -->
+<post cond="rocks_version_major &gt;= 7">
 
 <!-- now setup the global PXE boot default actions -->
 <!-- Install with tracker turned on -->

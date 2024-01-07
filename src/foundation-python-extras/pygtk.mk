@@ -133,7 +133,7 @@ endif
 	(								\
 		cd pygtk-$(PYGTK_VERSION);				\
 		PATH=/opt/rocks/bin:$$PATH				\
-		PKG_CONFIG_PATH=$(PWD)/../tmpinstall/lib/pkgconfig:/usr/lib64/pkgconfig:$$PKG_CONFIG_PATH     \
+		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH     \
 			./configure --prefix=$(PKGROOT);		\
 		$(MAKE);						\
 	)
