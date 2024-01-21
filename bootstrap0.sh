@@ -166,7 +166,7 @@ if [ `./_os` == "linux" ]; then
 	EXTRA_PACKAGES="$EXTRA_PACKAGES cairo-gobject cairo-gobject-devel" 
 	yum -y install rpm-build rpm-devel gcc gcc-c++ ncurses-devel swig glib2 glib2-devel pygobject2 pygobject2-devel cairo cairo-devel createrepo_c apr apr-devel expat-devel cmake $EXTRA_PACKAGES
 # install more packages for easy UCR roll build
-yum install -y readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc rpcgen atk-devel pango-devel gtk2-devel libglade2 libglade2-devel lapack perl-WWW-Curl perl-DBI libffi-devel file-devel beecrypt beecrypt-devel libtirpc libtirpc-devel rpcsvc-proto-devel libnsl2-devel texlive-fancyhdr texlive-metafont texlive-ec texlive-symbol texlive-times texlive-helvetic texlive-courier texlive-gsftopk texlive-dvips mariadb protobuf protobuf-devel protobuf-c-compiler parted-devel libsepol-static libsepol-devel libsepol volume_key-devel nss-devel device-mapper-devel libepoxy-devel at-spi2-core-devel libxklavier-devel dbus-glib-devel xmlrpc-c-devel satyr-devel augeas augeas-devel json-c-devel libtar-devel cracklib-devel sqlite-devel ppp ppp-devel jansson-devel libndp-devel kmod-devel cryptsetup-devel libbytesize-devel ndctl-devel libyaml-devel
+yum install -y httpd readline-devel pam-devel lorax fail2ban fail2ban-firewalld fail2ban-sendmail fail2ban-server hwloc hwloc-libs hwloc-devel libmount libmount-devel gtk-doc rpcgen atk-devel pango-devel gtk2-devel libglade2 libglade2-devel lapack perl-WWW-Curl perl-DBI libffi-devel file-devel beecrypt beecrypt-devel libtirpc libtirpc-devel rpcsvc-proto-devel libnsl2-devel texlive-fancyhdr texlive-metafont texlive-ec texlive-symbol texlive-times texlive-helvetic texlive-courier texlive-gsftopk texlive-dvips mariadb protobuf protobuf-devel protobuf-c-compiler parted-devel libsepol-static libsepol-devel libsepol volume_key-devel nss-devel device-mapper-devel libepoxy-devel at-spi2-core-devel libxklavier-devel dbus-glib-devel xmlrpc-c-devel satyr-devel augeas augeas-devel json-c-devel libtar-devel cracklib-devel sqlite-devel ppp ppp-devel jansson-devel libndp-devel kmod-devel cryptsetup-devel libbytesize-devel ndctl-devel libyaml-devel
 fi
 
 # 2. Foundation Packages
@@ -229,4 +229,4 @@ echo "##########################################################################
 echo "# bootstrap0.sh: 6. Prep as if this were a devel server"
 echo "################################################################################"
 # This adds some appliance definitions and adds various packages needed for bootstrapping. 
-./prepcore.sh
+# ./prepcore.sh
