@@ -229,4 +229,4 @@ echo "##########################################################################
 echo "# bootstrap0.sh: 6. Prep as if this were a devel server"
 echo "################################################################################"
 # This adds some appliance definitions and adds various packages needed for bootstrapping. 
-# ./prepcore.sh
+./prepcore.sh
