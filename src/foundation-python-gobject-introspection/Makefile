@@ -94,6 +94,8 @@ install::
 	(									\
 		cd $(PYPKGNAME)-$(VERSION);					\
 		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;			\
+		mkdir -p $(ROOT)/$(PKGROOT)/share/gir-1.0;			\
+		install -c -m 644 gir/DBus-1.0.gir gir/DBusGLib-1.0.gir gir/fontconfig-2.0.gir gir/freetype2-2.0.gir gir/GL-1.0.gir gir/libxml2-2.0.gir gir/xft-2.0.gir gir/xlib-2.0.gir gir/xfixes-4.0.gir gir/xrandr-1.3.gir gir/win32-1.0.gir gir/cairo-1.0.gir GLib-2.0.gir GObject-2.0.gir GModule-2.0.gir Gio-2.0.gir GIRepository-2.0.gir $(ROOT)/$(PKGROOT)/share/gir-1.0;	\
 	)
 
 clean::

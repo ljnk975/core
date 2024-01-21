@@ -1,5 +1,4 @@
-#! /opt/rocks/bin/python2.7
-#! /usr/local/bin/python
+#! /opt/rocks/bin/python
 
 # NOTE: the above "/usr/local/bin/python" is NOT a mistake.  It is
 # intentionally NOT "/usr/bin/env python".  On many systems

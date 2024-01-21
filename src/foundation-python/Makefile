@@ -189,6 +189,7 @@ endif
 	-cd patch-files-$(ARCH) && find . -type f | grep -v CVS | cpio -pduv ../
 	( 								\
 		cd Python-$(VERSION);					\
+		LIBS="/opt/rocks/lib/libssl.a /opt/rocks/lib/libcrypto.a"	\
 		./configure $(ADDFLAGS) --prefix=$(PKGROOT) 		\
 				$(CONFIGOPTS);				\
 		$(MAKE);						\

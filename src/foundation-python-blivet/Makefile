@@ -87,10 +87,9 @@ build:
 # We need to deactivate btrfs manually. Otherweise warnings like ...
 # WARNING **: 16:43:55.608: failed to load module btrfs: libbd_btrfs.so.2: cannot open shared object file: No such file or directory
 # ... will appear. Done via patch-file.
-# https://src.fedoraproject.org/repo/pkgs/python-blivet/blivet-3.3.3.tar.gz/sha512/c4eb96f6856a6dc7c6cd78bda064f5dd890951714a627b231488327b8790f16160a088842c9c3627ecb8551b25379402a4af9e777e8c610e7d5810baf5a0a41a/blivet-3.3.3.tar.gz
 ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
 	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.gz."
-	$(HTTPGET) -B https://src.fedoraproject.org -F repo/pkgs/python-blivet/blivet-3.3.3.tar.gz/sha512/c4eb96f6856a6dc7c6cd78bda064f5dd890951714a627b231488327b8790f16160a088842c9c3627ecb8551b25379402a4af9e777e8c610e7d5810baf5a0a41a -n $(PYPKGNAME)-$(VERSION).tar.gz
+	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(PYPKGNAME)-$(VERSION).tar.gz
 endif
 	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
 	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../

@@ -1,5 +1,5 @@
 PYPKGNAME = pygobject
 NAME	= foundation-python-pygobject
-VERSION = 3.36.1
+VERSION = 2.28.7
 RELEASE = 0
-RPM.FILES = "/opt/rocks/include/*\\n/opt/rocks/lib/pkgconfig/*\\n/opt/rocks/lib/python2*/site-packages/*"
+RPM.FILES = "/opt/rocks/bin/*\\n/opt/rocks/include/*\\n/opt/rocks/lib/*\\n/opt/rocks/share/*"

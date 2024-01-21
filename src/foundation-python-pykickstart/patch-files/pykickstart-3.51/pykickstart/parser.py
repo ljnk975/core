@@ -32,7 +32,9 @@ This module exports several important classes:
 
     KickstartParser - The kickstart file parser state machine.
 """
-from collections.abc import Iterator
+# ROCKS8
+# from collections.abc import Iterator
+from collections import Iterator
 
 import os
 import shlex

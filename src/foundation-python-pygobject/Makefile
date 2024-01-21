@@ -75,7 +75,7 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 include Rules.mk
 
 
-build:
+build::
 # ROCKS8: Need to relocate from foundation-python-extras due to pygtk build dependencies
 # https://gitlab.gnome.org/GNOME/pygobject/-/blob/master/NEWS: 3.36.1 is last 
 # release supporting Python 2.
@@ -86,14 +86,20 @@ build:
 # https://download.gnome.org/sources/pygobject/2.28/pygobject-2.28.7.tar.xz
 # Same error - rrot cause were missing python-blockdev bindings. Switching back to 3.36.1, because
 # pygobject-2.28.7 does not compile with gobject-introspection
+#
+# Trying pygobject-2.28.7 again with following simple patch due to problems with
+# foundation-NetworkManager https://mail-index.netbsd.org/pkgsrc-users/2012/02/08/msg015675.html
 ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
 	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.xz."
-	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/3.36 -n $(PYPKGNAME)-$(VERSION).tar.xz
+	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/2.28 -n $(PYPKGNAME)-$(VERSION).tar.xz
 endif
 	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
-	(												\
-		cd $(PYPKGNAME)-$(VERSION);								\
-		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py build;	\
+	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+	(									\
+		cd $(PYPKGNAME)-$(VERSION);					\
+		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
+		./configure --prefix=$(PKGROOT) --enable-introspection;		\
+		$(MAKE);							\
 	)
 #	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
 #	(								\
@@ -103,9 +109,9 @@ endif
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
-	(														\
-		cd $(PYPKGNAME)-$(VERSION);										\
-		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py install --root=$(ROOT);	\
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
 	)
 #	(								\
 #		cd $(PYPKGNAME)-$(VERSION);				\

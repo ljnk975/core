@@ -76,18 +76,32 @@ include Rules.mk
 
 
 build:
-# ROCKS8: Needed by foundation-python-pyparted
-# https://files.pythonhosted.org/packages/32/a8/b5b37fc32b05169665c65b5bb78b375c5aa937113aaae3d5e4170af41652/pykickstart-3.51.tar.gz
-ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.gz."
-	$(HTTPGET) -B https://files.pythonhosted.org -F packages/32/a8/b5b37fc32b05169665c65b5bb78b375c5aa937113aaae3d5e4170af41652 -n $(PYPKGNAME)-$(VERSION).tar.gz
+# ROCKS8: Needed for foundation-anaconda
+# http://vault.centos.org/7.9.2009/os/Source/SPackages/pykickstart-1.99.66.22-1.el7.src.rpm
+ifeq ($(shell ! test -f $(SRCPKGFILE) && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading $(SRCPKGFILE)"
+	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGFILE)
 endif
-	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
-	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
+		mkdir content && cd content;				\
+		rpm2cpio ../$(SRCPKGFILE) | cpio -idmv;			\
+		mv $(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;		\
+		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
 		cd $(PYPKGNAME)-$(VERSION);				\
 		$(PY.PATH) setup.py build;				\
 	)
+
+# https://files.pythonhosted.org/packages/32/a8/b5b37fc32b05169665c65b5bb78b375c5aa937113aaae3d5e4170af41652/pykickstart-3.51.tar.gz
+#ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
+#	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.gz."
+#	$(HTTPGET) -B https://files.pythonhosted.org -F packages/32/a8/b5b37fc32b05169665c65b5bb78b375c5aa937113aaae3d5e4170af41652 -n $(PYPKGNAME)-$(VERSION).tar.gz
+#endif
+#	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
+#	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+#	(								\
+#		cd $(PYPKGNAME)-$(VERSION);				\
+#		$(PY.PATH) setup.py build;				\
+#	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)

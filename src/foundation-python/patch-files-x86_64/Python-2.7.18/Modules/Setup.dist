@@ -218,7 +218,8 @@ _socket socketmodule.c timemodule.c
 SSL=/opt/rocks
 _ssl _ssl.c \
 	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
-	-L$(SSL)/lib -lssl -lcrypto
+	/opt/rocks/lib/libssl.a /opt/rocks/lib/libcrypto.a
+#	-L$(SSL)/lib -lssl -lcrypto
 
 # The crypt module is now disabled by default because it breaks builds
 # on many systems (where -lcrypt is needed), e.g. Linux (I believe).

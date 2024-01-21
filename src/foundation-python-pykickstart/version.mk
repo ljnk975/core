@@ -1,5 +1,10 @@
 PYPKGNAME = pykickstart
 NAME	= foundation-python-pykickstart
-VERSION = 3.51
-RELEASE = 0
-RPM.FILES = "/opt/rocks/lib/python2*/site-packages/*\\n/opt/rocks/bin/*\\n/opt/rocks/share/man/man1/*"
+#VERSION = 3.51
+#RELEASE = 0
+VERSION = 1.99.66.22
+RELEASE = 1
+RPM.FILES = "/opt/rocks/bin/*\\n/opt/rocks/lib/*\\n/opt/rocks/share/*"
+SRCPKGFILE = pykickstart-1.99.66.22-1.el7.src.rpm
+SRCPKGHOST = http://vault.centos.org
+SRCPKGPATH = 7.9.2009/os/Source/SPackages

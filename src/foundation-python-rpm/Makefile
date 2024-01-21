@@ -87,7 +87,7 @@ endif
 #	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		cd $(PYPKGNAME)-$(VERSION);				\
-		PYTHON=$(PY.PATH) ././configure --prefix=$(ROOT) 	\
+		PYTHON=$(PY.PATH) ./configure --prefix=$(ROOT) 		\
 		--with-crypto=beecrypt --without-lua;			\
 		$(MAKE);						\
 		cd python;						\
