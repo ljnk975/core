@@ -84,8 +84,9 @@ fi
 #compile_and_install foundation-wget
 
 compile_and_install librocks
-#compile_and_install rocks-pylib
-#compile_and_install rocks-profile
+compile_and_install foundation-python-rpm
+compile_and_install foundation-python-urlgrabber
+compile_and_install foundation-python-pygobject
 
 if [ `./_os` == "linux" ]; then
 	install_os_packages server

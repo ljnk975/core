@@ -89,34 +89,42 @@ build::
 #
 # Trying pygobject-2.28.7 again with following simple patch due to problems with
 # foundation-NetworkManager https://mail-index.netbsd.org/pkgsrc-users/2012/02/08/msg015675.html
+#
+# Again switching back to Centos7 Version https://download.gnome.org/sources/pygobject/3.22/pygobject-3.22.0.tar.xz
+# due to anaconda problems with
+# File "/opt/rocks/lib/python2.7/site-packages/gi/overrides/GLib.py", line 99, in _create_tuple
+#    builder = GLib.VariantBuilder()
+# MemoryError
+# 3.22 does not compile! 3.29 compiles.
 ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
 	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.xz."
-	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/2.28 -n $(PYPKGNAME)-$(VERSION).tar.xz
+	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/3.29 -n $(PYPKGNAME)-$(VERSION).tar.xz
 endif
-	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
-	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
-	(									\
-		cd $(PYPKGNAME)-$(VERSION);					\
-		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
-		./configure --prefix=$(PKGROOT) --enable-introspection;		\
-		$(MAKE);							\
-	)
 #	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
-#	(								\
-#		cd $(PYPKGNAME)-$(VERSION);				\
-#		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py build;	\
+#	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+#	(									\
+#		cd $(PYPKGNAME)-$(VERSION);					\
+#		PYTHON=$(PY.PATH)						\
+#		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
+#		./configure --prefix=$(PKGROOT) --enable-introspection;		\
+#		$(MAKE);							\
 #	)
+	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py build;	\
+	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
-	(								\
-		cd $(PYPKGNAME)-$(VERSION);				\
-		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
-	)
 #	(								\
 #		cd $(PYPKGNAME)-$(VERSION);				\
-#		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py install --root=$(ROOT);		\
+#		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
 #	)
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py install --root=$(ROOT);		\
+	)
 
 clean::
 	rm -rf $(PYPKGNAME)-$(VERSION)

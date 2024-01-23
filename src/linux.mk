@@ -60,11 +60,15 @@
 # ROCKS8:	dropping foundation-redhat in favour of foundation-newt and
 # 		foundation-python-rpm
 -include $(CURDIR)/devel/devel/etc/rocks-version.mk
-SRCDIRS = `find . -maxdepth 1 -type d \
+SRCDIRS=`find . -maxdepth 1 -type d \
 	-not -name CVS \
 	-not -name foundation-git \
 	-not -name foundation-coreutils \
 	-not -name foundation-wget \
 	-not -name foundation-redhat \
+	-not -name foundation-NetworkManager \
 	-not -name . `
+
+# Add dirs to be compiled and end of list
+SRCDIRS+=foundation-NetworkManager
 

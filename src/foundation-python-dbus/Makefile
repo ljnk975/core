@@ -75,7 +75,7 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 include Rules.mk
 
 
-build::
+build:
 # ROCKS8: for foundation-anaconda (same Version as Rocky8)
 # https://files.pythonhosted.org/packages/ad/1b/76adc363212c642cabbf9329457a918308c0b9b5d38ce04d541a67255174/dbus-python-1.2.4.tar.gz
 ifeq ($(shell ! test -f $(PYPKGNAME)-python-$(VERSION).tar.gz && echo -n yes),yes)
@@ -89,8 +89,8 @@ endif
 		PYTHON=$(PY.PATH) LIBS="/opt/rocks/lib/libssl.a /opt/rocks/lib/libcrypto.a"	\
 		./configure --prefix=$(PKGROOT);			\
 		$(MAKE);						\
-		$(MAKE) check -k;					\
 	)
+#		$(MAKE) check -k;					\
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)

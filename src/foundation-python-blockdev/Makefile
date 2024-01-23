@@ -93,21 +93,35 @@ endif
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
 		autoreconf -ivf;					\
 		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig PYTHON=/opt/rocks/bin/python \
-		./configure --prefix=$(ROOT)/$(PKGROOT) 		\
+		./configure --prefix=$(PKGROOT) 		\
 		--with-python2 --without-python3 --without-dmraid;	\
-		$(MAKE) -C src/python;					\
+		$(MAKE);						\
 	)
+#		$(MAKE) -C src/python;					\
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(								\
 		cd lib$(PYPKGNAME)-$(VERSION); 				\
-		$(MAKE) -C src/python install;				\
-		mv $(ROOT)/$(PKGROOT)/lib64 $(ROOT)/$(PKGROOT)/lib;	\
+		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
+		mv $(ROOT)/$(PKGROOT)/lib64/python2.7 $(ROOT)/$(PKGROOT)/lib;	\
+		$(PY.PATH) -m compileall $(ROOT)/$(PKGROOT);		\
+		$(PY.PATH) -OO -m compileall $(ROOT)/$(PKGROOT);	\
+		rm -rf $(ROOT)/$(PKGROOT)/bin;				\
+		rm -rf $(ROOT)/$(PKGROOT)/etc;				\
+		rm -rf $(ROOT)/$(PKGROOT)/lib64;			\
+		rm -rf $(ROOT)/$(PKGROOT)/share/gtk-doc;		\
+	)
+#		$(MAKE) -C src/python install;				\
 		$(PY.PATH) -m compileall $(ROOT);			\
 		$(PY.PATH) -OO -m compileall $(ROOT);			\
-	)
+
+
+#		rm -rf $(ROOT)/$(PKGROOT)/lib/libbd_*;			\
+		rm -rf $(ROOT)/$(PKGROOT)/lib/libblockdev*;		\
+		rm -rf $(ROOT)/$(PKGROOT)/lib/pkgconfig;		\
+		rm -rf $(ROOT)/$(PKGROOT)/include;			\
 
 
 clean::
-	rm -rf lib$(PYPKGNAME)-$(VERSION)
+	rm -rf lib$(PYPKGNAME)-$(VERSION) content
