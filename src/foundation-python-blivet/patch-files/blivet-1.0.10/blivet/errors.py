@@ -20,6 +20,8 @@
 # Red Hat Author(s): Dave Lehman <dlehman@redhat.com>
 #
 
+from .i18n import N_
+
 class StorageError(Exception):
     def __init__(self, *args, **kwargs):
         self.hardware_fault = kwargs.pop("hardware_fault", False)
