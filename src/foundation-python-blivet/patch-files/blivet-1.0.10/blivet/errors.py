@@ -144,9 +144,29 @@ class DeviceTreeError(StorageError):
 class DeviceNotFoundError(StorageError):
     pass
 
+# ROCKS8: inspired by python-blivet-0.61.15.75
 class UnusableConfigurationError(StorageError):
     """ User has an unusable initial storage configuration. """
-    pass
+    suggestion = N_("Unusable initial storage configuration")
+
+# ROCKS8: from python-blivet-0.61.15.75
+class DiskLabelScanError(UnusableConfigurationError):
+    suggestion = N_("For some reason we were unable to locate a disklabel on a "
+                    "disk that the kernel is reporting partitions on. It is "
+                    "unclear what the exact problem is. Please file a bug at "
+                    "http://bugzilla.redhat.com")
+
+class CorruptGPTError(UnusableConfigurationError):
+    suggestion = N_("Either restore the disklabel to a completely working "
+                    "state or remove it completely.\n"
+                    "Hint: parted can restore it or wipefs can remove it.")
+
+class DuplicateVGError(UnusableConfigurationError):
+    suggestion = N_("Rename one of the volume groups so the names are "
+                    "distinct.\n"
+                    "Hint 1: vgrename accepts UUID in place of the old name.\n"
+                    "Hint 2: You can get the VG UUIDs by running "
+                    "'pvs -o +vg_uuid'.")
 
 # DeviceAction
 class DeviceActionError(StorageError):
