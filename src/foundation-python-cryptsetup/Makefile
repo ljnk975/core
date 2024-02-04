@@ -75,41 +75,40 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 include Rules.mk
 
 
-build::
-# ROCKS8: Creates missing python-pwquality package for foundation-anaconda
-ifeq ($(shell ! test -f $(SRCPKGNAME) && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
-	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
+build:
+# ROCKS8: cryptsetup for foundation-anaconda
+# http://vault.centos.org/7.9.2009/os/Source/SPackages/cryptsetup-2.0.3-6.el7.src.rpm
+ifeq ($(shell ! test -f dmraid-1.0.0.rc16-3.tar.bz2 && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading cryptsetup-2.0.3-6.el7.src.rpm."
+	$(HTTPGET) -B http://vault.centos.org -F 7.9.2009/os/Source/SPackages -n cryptsetup-2.0.3-6.el7.src.rpm
 endif
+#	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;			\
-		mv lib$(PYPKGNAME)-$(VERSION).tar.bz2 ../ && cd ..;	\
-		tar xjf lib$(PYPKGNAME)-$(VERSION).tar.bz2;		\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		PATCHES=`ls ../content/*.patch`;			\
-		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
-		autoreconf -if;						\
-		PYTHON=$(PY.PATH) ./configure --prefix=$(PKGROOT) 	\
-		--with-pythonsitedir=lib/python2.7/site-packages	\
-		--with-securedir=/lib64/security --with-python-binary=$(PY.PATH);\
+		rpm2cpio ../cryptsetup-2.0.3-6.el7.src.rpm | cpio -idmv && cd ..;	\
+		tar xf content/cryptsetup-1.7.4.tar.xz;				\
+		cd cryptsetup-1.7.4;					\
+		patch -p1 < ../content/cryptsetup-avoid-rh-kernel-bug.patch;	\
+		patch -p1 < ../content/cryptsetup-1.7.5-fix-unaligned-access-to-hidden-truecrypt.patch;	\
+		patch -p1 < ../content/cryptsetup-1.7.5-fix-luksformat-in-fips-mode.patch;	\
+		patch -p1 < ../content/cryptsetup-1.7.6-fix-blockwise-access-functions-for-64k-page-size.patch;	\
+		patch -p1 < ../content/cryptsetup-1.7.6-crypt_deactivate-fail-earlier-when-holders-detected.patch;	\
+		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig PYTHON=$(PY.PATH) \
+		./configure --prefix=$(PKGROOT) --enable-python --enable-fips \
+		--disable-pwquality --disable-cryptsetup-reencrypt --disable-veritysetup;	\
 		$(MAKE);						\
 	)
 
 install::
-	mkdir -p $(ROOT)/$(PKGROOT)
+	mkdir -p $(ROOT)
 	(								\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		$(MAKE) DESTDIR=$(ROOT) install;		\
-		rm -rf $(ROOT)/$(PKGROOT)/bin;				\
-		rm -rf $(ROOT)/$(PKGROOT)/etc;				\
-		rm -rf $(ROOT)/$(PKGROOT)/include;			\
+		cd cryptsetup-1.7.4;					\
+		$(MAKE) DESTDIR=$(ROOT) install;			\
+		rm -rf $(ROOT)/$(PKGROOT)/sbin;				\
 		rm -rf $(ROOT)/$(PKGROOT)/share;			\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/pkgconfig;		\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/lib*;			\
-		rm -rf $(ROOT)/lib64;					\
 	)
 
 clean::
-	rm -rf $(PYPKGNAME)-$(VERSION)
-	rm -rf content libpwquality-1.4.4*
+	rm -rf cryptsetup-1.7.4;					\
+	rm -rf content;							\
+	rm -f  cryptsetup-2.0.3-6.el7.src.rpm;				\

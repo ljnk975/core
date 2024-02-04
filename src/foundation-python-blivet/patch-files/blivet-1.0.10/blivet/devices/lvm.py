@@ -24,6 +24,7 @@ from six import add_metaclass
 import abc
 import pprint
 import re
+from collections import namedtuple
 import gi
 gi.require_version('BlockDev', '2.0')
 from gi.repository import BlockDev as blockdev
@@ -47,6 +48,8 @@ from .container import ContainerDevice
 from .dm import DMDevice
 from .md import MDRaidArrayDevice
 from .cache import Cache, CacheStats, CacheRequest
+ThPoolReserveSpec = namedtuple("ThPoolReserveSpec", ["percent", "min", "max"])
+""" A namedtuple class for specifying restrictions of space reserved for a thin pool to grow """
 
 class LVMVolumeGroupDevice(ContainerDevice):
     """ An LVM Volume Group """
@@ -108,6 +111,10 @@ class LVMVolumeGroupDevice(ContainerDevice):
         self.peFree = util.numeric_type(peFree)
         self.reserved_percent = 0
         self.reserved_space = Size(0)
+        self._thpool_reserve = None
+
+        # this will have to be covered by the 20% pad for non-existent pools
+        self.poolMetaData = 0
 
         # TODO: validate peSize if given
         if not self.peSize:
@@ -181,6 +188,20 @@ class LVMVolumeGroupDevice(ContainerDevice):
         for lv in self.lvs:
             if lv.status:
                 return True
+
+        # special handling for incomplete VGs
+        if not self.complete:
+            try:
+                lvs_info = lvm.lvs(vg_name=self.name)
+            except lvm.LVMError:
+                lvs_info = dict()
+
+            for lv_info in lvs_info.values():
+                lv_attr = udev.device_get_lv_attr(lv_info)
+                if lv_attr and lv_attr[4] == 'a':
+                    return True
+
+            return False
 
         # if any of our PVs are not active then we cannot be
         for pv in self.pvs:
@@ -280,6 +301,9 @@ class LVMVolumeGroupDevice(ContainerDevice):
 
         self._lvs.remove(lv)
 
+        if self.poolMetaData and not self.thinpools:
+            self.poolMetaData = 0
+
         # snapshot accounting
         origin = getattr(lv, "origin", None)
         if origin:
@@ -287,6 +311,12 @@ class LVMVolumeGroupDevice(ContainerDevice):
 
     def _addParent(self, member):
         super(LVMVolumeGroupDevice, self)._addParent(member)
+
+        # now see if the VG can be activated
+        ## XXX TODO: remove this activation code
+        if self.exists and member.format.exists and self.complete and \
+           flags.installer_mode:
+            self.setup()
 
         if (self.exists and member.format.exists and
             len(self.parents) + 1 == self.pvCount):
@@ -317,6 +347,16 @@ class LVMVolumeGroupDevice(ContainerDevice):
         return modified
 
     @property
+    def thpool_reserve(self):
+        return self._thpool_reserve
+
+    @thpool_reserve.setter
+    def thpool_reserve(self, value):
+        if value is not None and not isinstance(value, ThPoolReserveSpec):
+            raise ValueError("Invalid thpool_reserve given, must be of type ThPoolReserveSpec")
+        self._thpool_reserve = value
+
+    @property
     def reservedSpace(self):
         """ Reserved space in this VG """
         reserved = Size(0)
@@ -324,6 +364,10 @@ class LVMVolumeGroupDevice(ContainerDevice):
             reserved = self.reserved_percent * Decimal('0.01') * self.size
         elif self.reserved_space > Size(0):
             reserved = self.reserved_space
+        elif self._thpool_reserve and any(self.thinpools):
+            reserved = min(max(self._thpool_reserve.percent * Decimal(0.01) * self.size,
+                               self._thpool_reserve.min),
+                           self._thpool_reserve.max)
 
         return self.align(reserved, roundup=True)
 
@@ -332,8 +376,27 @@ class LVMVolumeGroupDevice(ContainerDevice):
         """ The size of this VG """
         # TODO: just ask lvm if isModified returns False
 
-        # sum up the sizes of the PVs and align to pesize
-        return sum((max(Size(0), self.align(pv.size - pv.format.peStart)) for pv in self.pvs), Size(0))
+        # sum up the sizes of the PVs, subtract the unusable (meta data) space
+        # and align to pesize
+        # NOTE: we either specify data alignment in a PV or the default is used
+        #       which is both handled by pv.format.peStart, but LVM takes into
+        #       account also the underlying block device which means that e.g.
+        #       for an MD RAID device, it tries to align everything also to chunk
+        #       size and alignment offset of such device which may result in up
+        #       to a twice as big non-data area
+        # TODO: move this to either LVMPhysicalVolume's peStart property once
+        #       formats know about their devices or to a new LVMPhysicalVolumeDevice
+        #       class once it exists
+        avail = Size(0)
+        for pv in self.pvs:
+            if isinstance(pv, MDRaidArrayDevice):
+                avail += self.align(pv.size - 2 * pv.format.peStart)
+            else:
+                avail += self.align(pv.size - pv.format.peStart)
+
+        return avail
+#        # sum up the sizes of the PVs and align to pesize
+#        return sum((max(Size(0), self.align(pv.size - pv.format.peStart)) for pv in self.pvs), Size(0))
 
     @property
     def extents(self):
@@ -451,7 +514,7 @@ class LVMLogicalVolumeDevice(DMDevice):
     def __init__(self, name, parents=None, size=None, uuid=None,
                  copies=1, logSize=None, segType=None,
                  fmt=None, exists=False, sysfsPath='',
-                 grow=None, maxsize=None, percent=None):
+                 grow=None, maxsize=None, percent=None, cacheRequest=None):
         """
             :param name: the device name (generally a device node's basename)
             :type name: str
@@ -485,6 +548,8 @@ class LVMLogicalVolumeDevice(DMDevice):
             :type maxsize: :class:`~.size.Size`
             :keyword percent -- percent of VG space to take
             :type percent: int
+            :keyword cacheRequest: parameters of the requested cache (if any)
+            :type cacheRequest: :class:`LVMCacheRequest`
 
         """
         if isinstance(parents, list):
@@ -498,6 +563,7 @@ class LVMLogicalVolumeDevice(DMDevice):
         if not isinstance(container, self._containerClass):
             raise ValueError("constructor requires a %s instance" % self._containerClass.__name__)
 
+        self.snapshots = []
         DMDevice.__init__(self, name, size=size, fmt=fmt,
                           sysfsPath=sysfsPath, parents=parents,
                           exists=exists)
@@ -507,7 +573,7 @@ class LVMLogicalVolumeDevice(DMDevice):
         self.logSize = logSize or Size(0)
         self.metaDataSize = Size(0)
         self.segType = segType or "linear"
-        self.snapshots = []
+        self._cache = None
 
         self.req_grow = None
         self.req_max_size = Size(0)
@@ -520,6 +586,11 @@ class LVMLogicalVolumeDevice(DMDevice):
             # XXX should we enforce that req_size be pe-aligned?
             self.req_size = self._size
             self.req_percent = util.numeric_type(percent)
+
+        if cacheRequest:
+            self._cache = LVMCache(self, cacheRequest.size, exists=False,
+                                   fast_pv_names=cacheRequest.fast_devs_names,
+                                   mode=cacheRequest.mode)
 
         # here we go with the circular references
         self.parents[0]._addLogVol(self)
@@ -575,8 +646,16 @@ class LVMLogicalVolumeDevice(DMDevice):
     @property
     def vgSpaceUsed(self):
         """ Space occupied by this LV, not including snapshots. """
+        cache_size = Size(0)
+        if self.cached:
+            cache_size = self.cache.size
         return (self.vg.align(self.size, roundup=True) * self.copies
-                + self.logSize + self.metaDataSize)
+                + self.logSize + 2 * self.metaDataSize + cache_size)
+
+    def _setFormat(self, fmt):
+        super(LVMLogicalVolumeDevice, self)._setFormat(fmt)
+        for snapshot in (s for s in self.snapshots if not s.exists):
+            snapshot._updateFormatFromOrigin()
 
     @property
     def vg(self):
@@ -623,6 +702,38 @@ class LVMLogicalVolumeDevice(DMDevice):
     def setupParents(self, orig=False):
         # parent is a vg, which has no formatting (or device for that matter)
         Device.setupParents(self, orig=orig)
+
+    def _preSetup(self, orig=False):
+        # If the lvmetad socket exists and any PV is inactive before we call
+        # setupParents (via _preSetup, below), we should wait for auto-
+        # activation before trying to manually activate this LV.
+        auto_activate = (lvm.lvmetad_socket_exists() and
+                         any(not pv.status for pv in self.vg.pvs))
+        if not super(LVMLogicalVolumeDevice, self)._preSetup(orig=orig):
+            return False
+
+        if auto_activate:
+            log.debug("waiting for lvm auto-activation of %s", self.name)
+            # Wait for auto-activation for up to 30 seconds. If this LV hasn't
+            # been activated when the timeout is reached, there may be some
+            # lvm.conf content preventing auto-activation of this LV, so we
+            # have to do it ourselves.
+            # The timeout value of 30 seconds was suggested by prajnoha. He
+            # noted that udev uses the same value, for whatever that's worth.
+            timeout = 30 # seconds
+            start = time.time()
+            while time.time() - start < timeout:
+                if self.status:
+                    # already active -- don't try to activate it manually
+                    log.debug("%s has been auto-activated", self.name)
+                    return False
+                else:
+                    log.debug("%s not active yet; sleeping...", self.name)
+                    time.sleep(0.5)
+
+            log.debug("lvm auto-activation timeout reached for %s", self.name)
+
+        return True
 
     def _setup(self, orig=False):
         """ Open, or set up, a device. """
@@ -672,12 +783,43 @@ class LVMLogicalVolumeDevice(DMDevice):
         """ Create the device. """
         log_method_call(self, self.name, status=self.status)
         # should we use --zero for safety's sake?
-        blockdev.lvm.lvcreate(self.vg.name, self._name, self.size)
+        if self.cached:
+            # prepare the list of fast PV devices
+            fast_pvs = []
+            for pv in self.cache.fast_pv_names:
+                # make sure we have the full device paths
+                if not pv.startswith("/dev/"):
+                    fast_pvs.append("/dev/%s" % pv)
+                else:
+                    fast_pvs.append(pv)
+
+            # get the list of all fast PV devices used in the VG so that we can
+            # consider the rest to be slow PVs and generate a list of them
+            all_fast_pvs_names = set()
+            for lv in self.vg.lvs:
+                if lv.cached and lv.cache.fast_pv_names:
+                    all_fast_pvs_names |= set(lv.cache.fast_pv_names)
+            slow_pvs = [pv.path for pv in self.vg.pvs if pv.name not in all_fast_pvs_names]
+
+            # TODO: allow specification of metadata size
+            # for now, we just make the metadata+data parts take the requested cache space together
+            md_size = lvm.cachepool_default_md_size(self.cache.size)
+            data_size = self.cache.size - md_size
+
+            blockdev.lvm.lvcreate_cached(self.vg.name, self._name, self.size,
+                                data_size, md_size, self.cache.mode,
+                                slow_pvs, fast_pvs)
+        else:
+            blockdev.lvm.lvcreate(self.vg.name, self._name, self.size)
 
     def _preDestroy(self):
         StorageDevice._preDestroy(self)
         # set up the vg's pvs so lvm can remove the lv
         self.vg.setupParents(orig=True)
+
+        # setting up VG's PVs may have caused this LV was automatically
+        # activated, make sure it is deactivated before removal
+        self.teardown()
 
     def _destroy(self):
         """ Destroy the device. """
@@ -761,13 +903,16 @@ class LVMLogicalVolumeDevice(DMDevice):
                        self.targetSize != self.currentSize)
         if not self.exists:
             data.grow = self.req_grow
+            if self.req_percent:
+                data.percent = self.req_percent
+
             if self.req_grow:
-                data.size = self.req_size.convertTo(MiB)
+                if not self.req_percent:
+                    data.size = self.req_size.convertTo(MiB)
                 data.maxSizeMB = self.req_max_size.convertTo(MiB)
             else:
-                data.size = self.size.convertTo(MiB)
-
-            data.percent = self.req_percent
+                if not self.req_percent:
+                    data.size = self.size.convertTo(MiB)
         elif data.resize:
             data.size = self.targetSize.convertTo(MiB)
 
@@ -794,6 +939,18 @@ class LVMLogicalVolumeDevice(DMDevice):
                 return False
 
         return True
+
+    @property
+    def cached(self):
+        return bool(self._cache)
+
+    @property
+    def cache(self):
+        return self._cache
+
+    @cache.setter
+    def cache(self, val):
+        self._cache = val
 
 @add_metaclass(abc.ABCMeta)
 class LVMSnapShotBase(object):
@@ -853,8 +1010,34 @@ class LVMSnapShotBase(object):
         if vorigin and not exists:
             raise ValueError("only existing vorigin snapshots are supported")
 
+    def _updateFormatFromOrigin(self):
+        """ Update the snapshot's format to reflect the origin's.
+
+            .. note::
+                This should only be called for non-existent snapshot devices.
+                Once a snapshot exists its format is distinct from that of its
+                origin.
+
+        """
+        fmt = copy.deepcopy(self.origin.format)
+        fmt.exists = False
+        if hasattr(fmt, "mountpoint"):
+            fmt._mountpoint = None
+            fmt._chrootedMountpoint = None
+            fmt.device = self.path # pylint: disable=no-member
+
+        super(LVMSnapShotBase, self)._setFormat(fmt)
+
     def _setFormat(self, fmt):
-        pass
+        # If a snapshot exists it can have a format that is distinct from its
+        # origin's. If it does not exist its format must be a copy of its
+        # origin's.
+        if self.exists: # pylint: disable=no-member
+            super(LVMSnapShotBase, self)._setFormat(fmt)
+        else:
+            log.info("copying %s origin's format", self.name) # pylint: disable=no-member
+            self._updateFormatFromOrigin()
+        #pass
 
     def _getFormat(self):
         if self.origin is None:
@@ -967,6 +1150,12 @@ class LVMSnapShotDevice(LVMSnapShotBase, LVMLogicalVolumeDevice):
         # pylint: disable=bad-super-call
         return (self.origin == dep or
                 super(LVMSnapShotBase, self).dependsOn(dep))
+
+    def _postCreate(self):
+        LVMLogicalVolumeDevice._postCreate(self)
+        # the snapshot's format exists if the origin's format exists
+        self.format.exists = self.origin.format.exists
+
 
 class LVMThinPoolDevice(LVMLogicalVolumeDevice):
     """ An LVM Thin Pool """

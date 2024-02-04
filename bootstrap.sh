@@ -87,6 +87,9 @@ compile_and_install librocks
 compile_and_install foundation-python-rpm
 compile_and_install foundation-python-urlgrabber
 compile_and_install foundation-python-pygobject
+compile_and_install foundation-python-selinux
+compile_and_install foundation-device-mapper
+compile_and_install foundation-dmraid
 
 if [ `./_os` == "linux" ]; then
 	install_os_packages server

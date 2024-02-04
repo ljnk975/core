@@ -76,7 +76,7 @@ include Rules.mk
 
 
 build:
-# ROCKS8: Creates missing python-libselinux
+# ROCKS8: Creates missing python-libselinux and static lib plus includes
 # https://download.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/l/libselinux-2.9-8.el8.src.rpm
 # Extract sources from src-rpm and build 
 ifeq ($(shell ! test -f libselinux-$(VERSION)-$(RELEASE).el8.src.rpm && echo -n yes),yes)
@@ -91,6 +91,9 @@ endif
 		cd lib$(PYPKGNAME)-$(VERSION);				\
 		PATCHES=`ls ../content/*.patch`;			\
 		for pat in $$PATCHES; do patch -p2 < $$pat; done;	\
+		cd ..;							\
+		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../;	\
+		cd ../lib$(PYPKGNAME)-$(VERSION);			\
 		export DISABLE_RPM="n";					\
 		export USE_PCRE2="y";					\
 		$(MAKE) clean;						\
@@ -103,7 +106,11 @@ install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(								\
 		cd lib$(PYPKGNAME)-$(VERSION); 				\
-		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) PREFIX=/opt/rocks install-pywrap;\
+		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) PREFIX=/opt/rocks install install-pywrap;\
+		rm -rf $(ROOT)/$(PKGROOT)/sbin;				\
+		rm -rf $(ROOT)/$(PKGROOT)/share;			\
+		rm -f  $(ROOT)/$(PKGROOT)/lib/*.so;			\
+		rm -rf $(ROOT)/lib;					\
 		mv $(ROOT)/opt/rocks/lib/python2.7/site-packages/selinux/_selinux.so $(ROOT)/opt/rocks/lib/python2.7/site-packages; \
 		$(PY.PATH) -m compileall $(ROOT);			\
 		$(PY.PATH) -OO -m compileall $(ROOT);			\

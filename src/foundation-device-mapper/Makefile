@@ -75,41 +75,41 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 include Rules.mk
 
 
-build::
-# ROCKS8: Creates missing python-pwquality package for foundation-anaconda
-ifeq ($(shell ! test -f $(SRCPKGNAME) && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
-	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
+build:
+# ROCKS8: device-mapper static lib and includes
+# https://download.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/l/lvm2-2.03.14-13.el8_9.src.rpm
+ifeq ($(shell ! test -f newt-r0-52-20.tar.gz && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading lvm2-2.03.14-13.el8_9.src.rpm."
+	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/BaseOS/source/tree/Packages/l -n lvm2-2.03.14-13.el8_9.src.rpm
 endif
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;			\
-		mv lib$(PYPKGNAME)-$(VERSION).tar.bz2 ../ && cd ..;	\
-		tar xjf lib$(PYPKGNAME)-$(VERSION).tar.bz2;		\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		PATCHES=`ls ../content/*.patch`;			\
+		rpm2cpio ../lvm2-2.03.14-13.el8_9.src.rpm | cpio -idmv;	\
+		mv LVM2.2.03.14.tgz ../ && cd ..;			\
+		tar xf LVM2.2.03.14.tgz && cd LVM2.2.03.14;		\
+		patch -p1 < ../content/lvm2-rhel8.patch;		\
+		patch -p1 < ../content/lvm2-test-skip-problematic-tests.patch;	\
+		PATCHES=`ls ../content/0*patch`;			\
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
-		autoreconf -if;						\
-		PYTHON=$(PY.PATH) ./configure --prefix=$(PKGROOT) 	\
-		--with-pythonsitedir=lib/python2.7/site-packages	\
-		--with-securedir=/lib64/security --with-python-binary=$(PY.PATH);\
+		PYTHON=$(PY.PATH) PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig \
+		./configure --prefix=$(PKGROOT) 	\
+		--enable-dmeventd --enable-cmdlib;			\
 		$(MAKE);						\
 	)
+#	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+#	--enable-static_link
+#		CFLAGS="-fPIC" LDFLAGS="-Wl,--copy-dt-needed-entries -Wl,-Bstatic \
+#		-L/opt/rocks/lib -lselinux -Wl,-Bdynamic -lpcre2-posix" \
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(								\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		$(MAKE) DESTDIR=$(ROOT) install;		\
-		rm -rf $(ROOT)/$(PKGROOT)/bin;				\
-		rm -rf $(ROOT)/$(PKGROOT)/etc;				\
-		rm -rf $(ROOT)/$(PKGROOT)/include;			\
+		cd LVM2.2.03.14;					\
+		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
+		rm -rf $(ROOT)/$(PKGROOT)/sbin;				\
 		rm -rf $(ROOT)/$(PKGROOT)/share;			\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/pkgconfig;		\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/lib*;			\
-		rm -rf $(ROOT)/lib64;					\
 	)
+#		rm -f  $(ROOT)/$(PKGROOT)/lib/libdevmapper.so*;		\
 
 clean::
-	rm -rf $(PYPKGNAME)-$(VERSION)
-	rm -rf content libpwquality-1.4.4*
+	rm -rf LVM2.2.03.14 content

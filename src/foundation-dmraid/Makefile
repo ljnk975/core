@@ -75,41 +75,30 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 include Rules.mk
 
 
-build::
-# ROCKS8: Creates missing python-pwquality package for foundation-anaconda
-ifeq ($(shell ! test -f $(SRCPKGNAME) && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
-	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
+build:
+# ROCKS8: dmraid (now obsolete)
+# https://people.redhat.com/heinzm/sw/dmraid/src/dmraid-1.0.0.rc16-3.tar.bz2
+ifeq ($(shell ! test -f dmraid-1.0.0.rc16-3.tar.bz2 && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading dmraid-1.0.0.rc16-3.tar.bz2."
+	$(HTTPGET) -B https://people.redhat.com -F heinzm/sw/dmraid/src -n dmraid-1.0.0.rc16-3.tar.bz2
 endif
+	bunzip2 -c dmraid-1.0.0.rc16-3.tar.bz2 | $(TAR) -xf -
+#	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
-		mkdir content && cd content;				\
-		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;			\
-		mv lib$(PYPKGNAME)-$(VERSION).tar.bz2 ../ && cd ..;	\
-		tar xjf lib$(PYPKGNAME)-$(VERSION).tar.bz2;		\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		PATCHES=`ls ../content/*.patch`;			\
-		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
-		autoreconf -if;						\
-		PYTHON=$(PY.PATH) ./configure --prefix=$(PKGROOT) 	\
-		--with-pythonsitedir=lib/python2.7/site-packages	\
-		--with-securedir=/lib64/security --with-python-binary=$(PY.PATH);\
+		cd dmraid/1.0.0.rc16-3/dmraid;				\
+		./configure --prefix=$(PKGROOT) --enable-led --enable-intel_led	\
+		--with-devmapper-prefix=/opt/rocks;			\
 		$(MAKE);						\
 	)
+#		LIBS="-Wl,--copy-dt-needed-entries -Wl,-Bstatic -L/opt/rocks/lib \
+#		-lselinux -Wl,-Bdynamic -lpcre2-posix -lsepol -lm"	\
 
 install::
-	mkdir -p $(ROOT)/$(PKGROOT)
+	mkdir -p $(ROOT)
 	(								\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		$(MAKE) DESTDIR=$(ROOT) install;		\
-		rm -rf $(ROOT)/$(PKGROOT)/bin;				\
-		rm -rf $(ROOT)/$(PKGROOT)/etc;				\
-		rm -rf $(ROOT)/$(PKGROOT)/include;			\
-		rm -rf $(ROOT)/$(PKGROOT)/share;			\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/pkgconfig;		\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/lib*;			\
-		rm -rf $(ROOT)/lib64;					\
+		cd dmraid/1.0.0.rc16-3/dmraid;				\
+		$(MAKE) DESTDIR=$(ROOT) install;			\
 	)
 
 clean::
-	rm -rf $(PYPKGNAME)-$(VERSION)
-	rm -rf content libpwquality-1.4.4*
+	rm -rf dmraid

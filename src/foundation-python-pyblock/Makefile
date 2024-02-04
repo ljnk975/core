@@ -75,41 +75,34 @@ HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 include Rules.mk
 
 
-build::
-# ROCKS8: Creates missing python-pwquality package for foundation-anaconda
-ifeq ($(shell ! test -f $(SRCPKGNAME) && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
-	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
+build:
+# ROCKS8: pyblock (now obsolete) for foundation-anaconda
+# http://vault.centos.org/7.9.2009/os/Source/SPackages/python-pyblock-0.53-6.el7.src.rpm
+ifeq ($(shell ! test -f dmraid-1.0.0.rc16-3.tar.bz2 && echo -n yes),yes)
+	@echo "ROCKS8: Sideloading python-pyblock-0.53-6.el7.src.rpm."
+	$(HTTPGET) -B http://vault.centos.org -F 7.9.2009/os/Source/SPackages -n python-pyblock-0.53-6.el7.src.rpm
 endif
+#	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;			\
-		mv lib$(PYPKGNAME)-$(VERSION).tar.bz2 ../ && cd ..;	\
-		tar xjf lib$(PYPKGNAME)-$(VERSION).tar.bz2;		\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		PATCHES=`ls ../content/*.patch`;			\
-		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
-		autoreconf -if;						\
-		PYTHON=$(PY.PATH) ./configure --prefix=$(PKGROOT) 	\
-		--with-pythonsitedir=lib/python2.7/site-packages	\
-		--with-securedir=/lib64/security --with-python-binary=$(PY.PATH);\
+		rpm2cpio ../python-pyblock-0.53-6.el7.src.rpm | cpio -idmv && cd ..;	\
+		tar xjf content/pyblock-0.53.tar.bz2;			\
+		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
+		cd pyblock-0.53;					\
 		$(MAKE);						\
 	)
 
 install::
-	mkdir -p $(ROOT)/$(PKGROOT)
+	mkdir -p $(ROOT)
 	(								\
-		cd lib$(PYPKGNAME)-$(VERSION);				\
-		$(MAKE) DESTDIR=$(ROOT) install;		\
-		rm -rf $(ROOT)/$(PKGROOT)/bin;				\
-		rm -rf $(ROOT)/$(PKGROOT)/etc;				\
-		rm -rf $(ROOT)/$(PKGROOT)/include;			\
-		rm -rf $(ROOT)/$(PKGROOT)/share;			\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/pkgconfig;		\
-		rm -rf $(ROOT)/$(PKGROOT)/lib/lib*;			\
-		rm -rf $(ROOT)/lib64;					\
+		cd pyblock-0.53;					\
+		$(MAKE) DESTDIR=$(ROOT) SITELIB=/opt/rocks/lib/python2.7/site-packages install;	\
+		find $(ROOT) -type f | xargs sed -i '1 s/\/usr\/bin\/python/\/opt\/rocks\/bin\/python/';\
+		$(PY.PATH) -m compileall $(ROOT)/$(PKGROOT);		\
+		$(PY.PATH) -OO -m compileall $(ROOT)/$(PKGROOT);	\
 	)
 
 clean::
-	rm -rf $(PYPKGNAME)-$(VERSION)
-	rm -rf content libpwquality-1.4.4*
+	rm -rf pyblock-0.53;						\
+	rm -rf content;							\
+	rm -f python-pyblock-0.53-6.el7.src.rpm;			\

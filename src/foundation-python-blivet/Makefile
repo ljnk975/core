@@ -87,16 +87,16 @@ build:
 # We need to deactivate btrfs manually. Otherweise warnings like ...
 # WARNING **: 16:43:55.608: failed to load module btrfs: libbd_btrfs.so.2: cannot open shared object file: No such file or directory
 # ... will appear. Done via patch-file.
-ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.gz."
-	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(PYPKGNAME)-$(VERSION).tar.gz
-endif
-	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
-	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
-	(								\
-		cd $(PYPKGNAME)-$(VERSION);				\
-		$(PY.PATH) setup.py build;				\
-	)
+#ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
+#	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.gz."
+#	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(PYPKGNAME)-$(VERSION).tar.gz
+#endif
+#	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
+#	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+#	(								\
+#		cd $(PYPKGNAME)-$(VERSION);				\
+#		$(PY.PATH) setup.py build;				\
+#	)
 
 # Old sources:
 # http://vault.centos.org/7.9.2009/updates/Source/SPackages/python-blivet-0.61.15.76-1.el7_9.src.rpm
@@ -106,37 +106,36 @@ endif
 #	@echo "ROCKS8: Sideloading python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm."
 #	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/AppStream/source/tree/Packages/p -n python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm
 #endif
-#ifeq ($(shell ! test -f python-blivet-$(VERSION)-1.el7_9.src.rpm && echo -n yes),yes)
-#	@echo "ROCKS8: python-blivet-$(VERSION)-1.el7_9.src.rpm."
-#	$(HTTPGET) -B http://vault.centos.org -F 7.9.2009/updates/Source/SPackages -n python-blivet-$(VERSION)-1.el7_9.src.rpm
-#endif
+ifeq ($(shell ! test -f python-blivet-$(VERSION)-1.el7_9.src.rpm && echo -n yes),yes)
+	@echo "ROCKS8: python-blivet-$(VERSION)-$(RELEASE).el7_9.src.rpm."
+	$(HTTPGET) -B http://vault.centos.org -F 7.9.2009/updates/Source/SPackages -n python-blivet-$(VERSION)-$(RELEASE).el7_9.src.rpm
+endif
 #	(								\
-#		mkdir content && cd content;				\
-#		rpm2cpio ../python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
-#		mv $(PYPKGNAME)-$(VERSION)*.tar.gz ../ && cd ..;	\
-#		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
-#		tar xf $(PYPKGNAME)-$(VERSION)-tests.tar.gz;		\
-#		cd $(PYPKGNAME)-$(VERSION);				\
-#		PATCHES=`ls ../content/00*`;				\
-#		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
-#		cd ../patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
-#		cd $(PYPKGNAME)-$(VERSION);				\
-#		$(MAKE) PYTHON=$(PY.PATH);				\
-#	)
-
-#	(								\
-#		mkdir content && cd content;				\
-#		rpm2cpio ../python-blivet-0.61.15.76-1.el7_9.src.rpm | cpio -idmv; \
-#		mv $(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;		\
-#		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
-#		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
-#		cd $(PYPKGNAME)-$(VERSION);				\
-#		$(MAKE) PYTHON=$(PY.PATH);				\
-#	)
+		mkdir content && cd content;				\
+		rpm2cpio ../python-blivet-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
+		mv $(PYPKGNAME)-$(VERSION)*.tar.gz ../ && cd ..;	\
+		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
+		tar xf $(PYPKGNAME)-$(VERSION)-tests.tar.gz;		\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		PATCHES=`ls ../content/00*`;				\
+		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
+		cd ../patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) PYTHON=$(PY.PATH);				\
+	)
+	(								\
+		mkdir content && cd content;				\
+		rpm2cpio ../python-blivet-0.61.15.76-1.el7_9.src.rpm | cpio -idmv; \
+		mv $(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;		\
+		tar xf $(PYPKGNAME)-$(VERSION).tar.gz;			\
+		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../ && cd ..;\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) PYTHON=$(PY.PATH);				\
+	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
-	(								\
+#	(								\
 		cd $(PYPKGNAME)-$(VERSION);				\
 		$(PY.PATH) setup.py install --root=$(ROOT);		\
 		rm -f $(ROOT)/etc/dbus-1/system.d/blivet.conf;		\
@@ -144,14 +143,19 @@ install::
 		rm -f $(ROOT)/usr/libexec/blivetd;			\
 		rm -f $(ROOT)/usr/share/dbus-1/system-services/com.redhat.Blivet0.service;	\
 	)
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) install;	\
+		rm -rf $(ROOT)/$(PKGROOT)/share;			\
+	)
 #	(								\
-#		cd $(PYPKGNAME)-$(VERSION);				\
-#		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) install;	\
-#		rm -f $(ROOT)/etc/dbus-1/system.d/blivet.conf;		\
-#		rm -f $(ROOT)/usr/lib/systemd/system/blivet.service;	\
-#		rm -f $(ROOT)/usr/libexec/blivetd;			\
-#		rm -f $(ROOT)/usr/share/dbus-1/system-services/com.redhat.Blivet0.service;	\
-#	)
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(MAKE) PYTHON=$(PY.PATH) DESTDIR=$(ROOT) install;	\
+		rm -f $(ROOT)/etc/dbus-1/system.d/blivet.conf;		\
+		rm -f $(ROOT)/usr/lib/systemd/system/blivet.service;	\
+		rm -f $(ROOT)/usr/libexec/blivetd;			\
+		rm -f $(ROOT)/usr/share/dbus-1/system-services/com.redhat.Blivet0.service;	\
+	)
 
 clean::
 	rm -rf $(PYPKGNAME)-$(VERSION)
