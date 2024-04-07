@@ -95,7 +95,7 @@ endif
 		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../;	\
 		cd ../lib$(PYPKGNAME)-$(VERSION);			\
 		export DISABLE_RPM="n";					\
-		export USE_PCRE2="y";					\
+		export USE_PCRE2="n";					\
 		$(MAKE) clean;						\
 		$(MAKE) swigify;					\
 		$(MAKE) all;						\
