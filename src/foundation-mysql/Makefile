@@ -242,6 +242,7 @@ build:
 # See foundation-openssl-old for details. mysql-5.2.26 does not compile on
 # Rocky8.
 # https://downloads.mysql.com/archives/get/p/23/file/mysql-5.6.51.tar.gz
+# https://downloads.mysql.com/archives/get/p/23/file/mysql-5.6.27.tar.gz
 ifeq ($(shell ! test -f mysql-$(VERSION).tar.gz && echo -n yes),yes)
 	@echo "ROCKS8: Sideloading mysql-$(VERSION).tar.gz."
 	$(HTTPGET) -B https://downloads.mysql.com -F archives/get/p/23/file -n mysql-$(VERSION).tar.gz
@@ -256,7 +257,8 @@ endif
 			-DMYSQL_UNIX_ADDR=$(PKGVAR)/mysql.sock 		\
 			-DMYSQL_TCP_PORT=40000				\
 			-DWITH_SSL=/opt/rocks				\
-			-DWITH_DEBUG=no;				\
+			-DWITH_DEBUG=no					\
+			-DCMAKE_CXX_FLAGS="-fpermissive -w";		\
 		$(MAKE);						\
 	)
 
