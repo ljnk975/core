@@ -258,6 +258,7 @@ endif
 			-DMYSQL_TCP_PORT=40000				\
 			-DWITH_SSL=/opt/rocks				\
 			-DWITH_DEBUG=no					\
+			-DCMAKE_C_FLAGS="-w"				\
 			-DCMAKE_CXX_FLAGS="-fpermissive -w";		\
 		$(MAKE);						\
 	)
