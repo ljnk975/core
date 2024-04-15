@@ -96,7 +96,7 @@ endif
 		intltoolize --automake --copy --force;				\
 		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
 		PYTHON=/opt/rocks/bin/python \
-		LIBS="-lsepol /opt/rocks/lib/libcurl.a /opt/rocks/lib/libssl.a /opt/rocks/lib/libcrypto.a" \
+		LIBS="-lsepol /opt/rocks/lib/libcurl.a /opt/rocks/lib/libssl.a /opt/rocks/lib/libcrypto.a -lpcre" \
 		./configure --prefix=$(PKGROOT) --disable-silent-rules \
 		--disable-static --with-dhclient=yes --with-dhcpcd=no --with-dhcpcanon=no \
 		--with-config-dhcp-default=internal --with-address-sanitizer=no \
