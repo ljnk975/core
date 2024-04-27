@@ -375,12 +375,13 @@ class RollBuilder_linux(Builder, rocks.dist.Arch):
 				
 				if file.getPackageArch() not in self.getCPUs():
 					continue
-					
+
 				# Resolve package versions
-				
-				name = file.getUniqueName()
+                                # ROCKS8 - include all files
+				# name = file.getUniqueName() # just <name>-<arch>
+                                name = file.getName() # complete file name
 				if not dict.has_key(name) or file >= dict[name]:
-					dict[name] = file
+				        dict[name] = file
 					
 		# convert the dictionary to a list and return all the RPMFiles
 		

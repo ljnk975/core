@@ -511,6 +511,7 @@ class RPMBaseFile(File):
 		return self.list[0]
 
 	def getUniqueName(self):
+                # just name w/ arch string appended
 		return '%s-%s' % (self.list[0], self.list[3])
 
 	
