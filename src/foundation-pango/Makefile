@@ -80,8 +80,9 @@ BUILDROOT =  $(CURDIR)/$(NAME).buildroot
 build::
 # ROCKS8 Neded for port of old Rocks Installer to Rocky8
 # https://download.rockylinux.org/pub/rocky/8/AppStream/source/tree/Packages/p/pango-1.42.4-8.el8.src.rpm
+# https://raw.repo.almalinux.org/vault/9.4/AppStream/Source/Packages/pango-1.48.7-3.el9.src.rpm
 ifeq ($(shell ! test -f $(SRCPKGNAME)  && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
+	@echo "ROCKS9: Sideloading $(SRCPKGNAME)."
 	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
 endif
 	(									\
@@ -90,21 +91,18 @@ endif
 		mv pango-$(VERSION).tar.xz ../ && cd ..;			\
 		tar xf pango-$(VERSION).tar.xz;					\
 		cd pango-$(VERSION);						\
-		patch -p1 < ../content/pango-fixes-get-variations-crash.patch;	\
-		patch -p1 < ../content/pango-fixes-bidi-crash.patch;		\
-		patch -p1 < ../content/pango-update-emoji-table.patch;		\
-		patch -p1 < ../content/pango-update-break-table.patch;		\
+		PATCHES=`ls ../content/*.patch`;			\
+		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
 		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
-		PYTHON=/opt/rocks/bin/python 					\
-		./configure --prefix=$(PKGROOT) --with-xft;			\
-		$(MAKE);							\
+		/usr/bin/meson setup build --prefix=$(PKGROOT) -Dxft=enabled ; \
+		cd build; meson compile \
 	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(									\
 		cd pango-$(VERSION);						\
-		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;			\
+		cd build; DESTDIR=$(ROOT) meson install;			\
 	)	
 
 clean::
