@@ -1,11 +1,11 @@
 
 DESTDIR := 
-SITELIB := $(shell python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)[1:]")
+SITELIB := $(shell /opt/rocks/bin/python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)[1:]")
 DEBUGSRC := "/usr/src/debug"
 DEBUGLIB := "/usr/lib/debug"
 CC := gcc
-PYVER := $(shell python -c "import sys; print sys.version[0:3]")
-CFLAGS := -g -I/opt/rocks/include/python$(PYVER) -I/opt/rocks/include -Wall -Werror -fPIC $(OPTFLAGS) -fno-strict-aliasing
+PYVER := $(shell /opt/rocks/bin/python -c "import sys; print sys.version[0:3]")
+CFLAGS := -g -I/opt/rocks/include/python$(PYVER) -I/opt/rocks/include -Wall -Werror -fPIC $(OPTFLAGS) -fno-strict-aliasing -Wno-error=deprecated-declarations
 LDFLAGS := -shared -L/opt/rocks/lib
 
 VERSION := $(shell awk '/Version:/ { print $$2 }' python-pyblock.spec)
