@@ -68,33 +68,39 @@
 #
 #
 
+PKGROOT		= /opt/rocks
 REDHAT.ROOT     = $(CURDIR)/../../
-HTTPGET         = $(ROCKSROOT)/bin/httpget.sh
-
+ROCKSROOT       = ../devel/devel
+HTTPGET         = ../../src/devel/devel/bin/httpget.sh
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-BUILDROOT =  $(CURDIR)/$(NAME).buildroot
 
-rpm::	$(HOME)/.rpmmacros prespec $(NAME).spec
-	rpmbuild -bb $(REDHAT.ROOT)/SPECS/$(NAME).spec
-
-prespec::
+build:
 # ROCKS8 Neded for port of old Rocks Installer to Rocky8
 # http://vault.centos.org/7.9.2009/updates/Source/SPackages/sos-3.9-5.el7.centos.11.src.rpm
 ifeq ($(shell ! test -f $(SRCPKGNAME)  && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
+	@echo "ROCKS9: Sideloading $(SRCPKGNAME)."
 	$(HTTPGET) -B http://vault.centos.org -F 7.9.2009/updates/Source/SPackages -n $(SRCPKGNAME)
 endif
 	(									\
 		mkdir content && cd content;					\
-		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv && cd ..;		\
-		mv -v content/*.tar.gz content/*.patch ../../SOURCES;		\
-		rm -rf content;							\
+		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;		\
+		mv $(VERSION).tar.gz ../ && cd ..;	\
+		tar xf $(VERSION).tar.gz;		\
+		cd $(PYPKGNAME)-$(VERSION);			\
+		PATCHES=`ls ../content/*.patch`;			\
+		for pat in $$PATCHES; do patch -p2 < $$pat; done;	\
+		$(PY.PATH) setup.py build;				\
 	)
 #	spec file is created separately from foundation-firstboot.spec.in
 
+install::
+	mkdir -p $(ROOT)/$(PKGROOT)
+	(								\
+		cd $(PYPKGNAME)-$(VERSION);				\
+		$(PY.PATH) setup.py install --root=$(ROOT);		\
+	)
+
 clean::
-	$(RM) -r $(NAME).buildroot
-	$(RM) -r ../../BUILD/$(NAME)*
-	$(RM) $(SRCPKGNAME)
+	rm -rf $(PYPKGNAME)-$(VERSION)
