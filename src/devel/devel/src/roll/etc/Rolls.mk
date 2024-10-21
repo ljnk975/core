@@ -298,6 +298,11 @@ ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 8)
 MKISOFSFLAGS = "-b isolinux/isolinux.bin -c isolinux/boot.cat -boot-load-size 4 -boot-info-table -no-emul-boot -eltorito-alt-boot -e images/efiboot.img -no-emul-boot -J -T"
 endif
 
+# ROCKS9
+ifeq ($(strip $(ROCKS.OS.VERSION.MAJOR)), 9)
+MKISOFSFLAGS = "-b isolinux/isolinux.bin -c isolinux/boot.cat -boot-load-size 4 -boot-info-table -no-emul-boot -eltorito-alt-boot -e images/efiboot.img -no-emul-boot -J -T"
+endif
+
 ifeq ($(ROLLS),)
 WITHROLLS = 0
 else
@@ -314,7 +319,7 @@ roll:: $(TARGET_PKG)s profile
 	env GNUPGHOME=$(ROCKSROOT.ABSOLUTE)/../.gnupg \
 		Kickstart_Lang=$(KICKSTART_LANG) \
 		Kickstart_Langsupport=$(KICKSTART_LANGSUPPORT) \
-		rocks create roll roll-$(ROLLNAME).xml
+		/opt/rocks/bin/rocks create roll roll-$(ROLLNAME).xml
 
 .PHONY: reroll
 reroll::
@@ -323,7 +328,7 @@ reroll::
 	env GNUPGHOME=$(ROCKSROOT.ABSOLUTE)/../.gnupg \
 		Kickstart_Lang=$(KICKSTART_LANG) \
 		Kickstart_Langsupport=$(KICKSTART_LANGSUPPORT) \
-		rocks create roll roll-$(ROLLNAME).xml
+		/opt/rocks/bin/rocks create roll roll-$(ROLLNAME).xml
 
 upload::
 	$(ROLLS.UPLOAD) $(ROLLNAME)-$(VERSION)-$(RELEASE).$(ARCH).disk*.iso $(ROLLS.SERVER):/$(ROLLS.PATH)

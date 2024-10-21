@@ -94,6 +94,7 @@ endif
 		patch -p1 < ../content/cryptsetup-1.7.6-fix-blockwise-access-functions-for-64k-page-size.patch;	\
 		patch -p1 < ../content/cryptsetup-1.7.6-crypt_deactivate-fail-earlier-when-holders-detected.patch;	\
 		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig PYTHON=$(PY.PATH) \
+		LIBS="-L/opt/rocks/lib/" \
 		./configure --prefix=$(PKGROOT) --enable-python --enable-fips \
 		--disable-pwquality --disable-cryptsetup-reencrypt --disable-veritysetup;	\
 		$(MAKE);						\

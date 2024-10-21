@@ -84,7 +84,7 @@ ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
 	$(HTTPGET) -B https://files.pythonhosted.org -F packages/53/58/48ce3c49c4b33855288b821e875d4ab59263b4a620ecc412279f90930532 -n $(PYPKGNAME)-$(VERSION).tar.gz
 endif
 	gunzip -c $(PYPKGNAME)-$(VERSION).tar.gz | $(TAR) -xf -
-#	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		cd $(PYPKGNAME)-$(VERSION);				\
 		$(PY.PATH) setup.py build;				\

@@ -76,19 +76,17 @@ include Rules.mk
 
 
 build:
-# ROCKS8: device-mapper static lib and includes
-# https://download.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/l/lvm2-2.03.14-13.el8_9.src.rpm
+# ROCKS9: device-mapper static lib and includes
+# https://repo.almalinux.org/vault/9.4/BaseOS/Source/Packages/lvm2-2.03.23-2.el9.src.rpm
 ifeq ($(shell ! test -f newt-r0-52-20.tar.gz && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading lvm2-2.03.14-13.el8_9.src.rpm."
-	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/BaseOS/source/tree/Packages/l -n lvm2-2.03.14-13.el8_9.src.rpm
+	@echo "ROCKS9: Sideloading lvm2-2.03.23-2.el9.src.rpm."
+	$(HTTPGET) -B https://repo.almalinux.org -F vault/9.4/BaseOS/Source/Packages/ -n lvm2-2.03.23-2.el9.src.rpm
 endif
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../lvm2-2.03.14-13.el8_9.src.rpm | cpio -idmv;	\
-		mv LVM2.2.03.14.tgz ../ && cd ..;			\
-		tar xf LVM2.2.03.14.tgz && cd LVM2.2.03.14;		\
-		patch -p1 < ../content/lvm2-rhel8.patch;		\
-		patch -p1 < ../content/lvm2-test-skip-problematic-tests.patch;	\
+		rpm2cpio ../lvm2-2.03.23-2.el9.src.rpm | cpio -idmv;	\
+		mv LVM2.2.03.23.tgz ../ && cd ..;			\
+		tar xf LVM2.2.03.23.tgz && cd LVM2.2.03.23;		\
 		PATCHES=`ls ../content/0*patch`;			\
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
 		PYTHON=$(PY.PATH) PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig \
@@ -104,7 +102,7 @@ endif
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(								\
-		cd LVM2.2.03.14;					\
+		cd LVM2.2.03.23;					\
 		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
 		rm -rf $(ROOT)/$(PKGROOT)/sbin;				\
 		rm -rf $(ROOT)/$(PKGROOT)/share;			\
@@ -112,4 +110,4 @@ install::
 #		rm -f  $(ROOT)/$(PKGROOT)/lib/libdevmapper.so*;		\
 
 clean::
-	rm -rf LVM2.2.03.14 content
+	rm -rf LVM2.2.03.23 content

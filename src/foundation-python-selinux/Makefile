@@ -76,16 +76,16 @@ include Rules.mk
 
 
 build:
-# ROCKS8: Creates missing python-libselinux and static lib plus includes
-# https://download.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/l/libselinux-2.9-8.el8.src.rpm
+# ROCKS9: Creates missing python-libselinux and static lib plus includes
+# https://repo.almalinux.org/vault/9.4/BaseOS/Source/Packages/libselinux-3.6-1.el9.src.rpm
 # Extract sources from src-rpm and build 
-ifeq ($(shell ! test -f libselinux-$(VERSION)-$(RELEASE).el8.src.rpm && echo -n yes),yes)
-	@echo "ROCKS8: libselinux-$(VERSION)-$(RELEASE).el8.src.rpm."
-	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/BaseOS/source/tree/Packages/l -n libselinux-$(VERSION)-$(RELEASE).el8.src.rpm
+ifeq ($(shell ! test -f libselinux-$(VERSION)-$(RELEASE).el9.src.rpm && echo -n yes),yes)
+	@echo "ROCKS9: libselinux-$(VERSION)-$(RELEASE).el9.src.rpm."
+	$(HTTPGET) -B https://repo.almalinux.org -F vault/9.4/BaseOS/Source/Packages -n libselinux-$(VERSION)-$(RELEASE).el9.src.rpm
 endif
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../libselinux-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
+		rpm2cpio ../libselinux-$(VERSION)-$(RELEASE).el9.src.rpm | cpio -idmv; \
 		mv lib$(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;	\
 		tar xf lib$(PYPKGNAME)-$(VERSION).tar.gz;		\
 		cd lib$(PYPKGNAME)-$(VERSION);				\

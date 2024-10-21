@@ -12,4 +12,6 @@ endif
 # ROCKS8 pygobject.mk now separated to foundation-python-pygobject
 #        pycairo.mk now separated to foundation-python-pycairo
 #        gobject-introspection.mk now separated to foundation-python-gobject-introspection
-include numpy.mk pygtk.mk M2Crypto.mk $(SSLMK)
+#        numpy.mk now separated to foundation-python-numpy
+#        pygtk.mk now separated to foundation-python-pygtk
+include M2Crypto.mk $(SSLMK)

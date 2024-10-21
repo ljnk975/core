@@ -130,6 +130,7 @@ ifeq ($(shell ! test -f pygtk-$(PYGTK_VERSION).tar.gz && echo -n yes),yes)
 	$(HTTPGET) -B https://download.gnome.org -F sources/pygtk/2.24 -n pygtk-$(PYGTK_VERSION).tar.gz
 endif
 	gunzip -c pygtk-$(PYGTK_VERSION).tar.gz | $(TAR) -xf -
+	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
 	(								\
 		cd pygtk-$(PYGTK_VERSION);				\
 		PATH=/opt/rocks/bin:$$PATH				\

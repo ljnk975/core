@@ -78,7 +78,7 @@ include Rules.mk
 build::
 # ROCKS8: Creates missing python-pwquality package for foundation-anaconda
 ifeq ($(shell ! test -f $(SRCPKGNAME) && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
+	@echo "ROCKS9: Sideloading $(SRCPKGNAME)."
 	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
 endif
 	(								\

@@ -27,8 +27,8 @@ ifeq ($(strip $(VERSION.MAJOR)), 8)
 PY.VERSION	= 2.7
 endif
 ifeq ($(strip $(VERSION.MAJOR)), 9)
-# FIXME in ROCKS9
-PY.VERSION	= $(shell python3 -c 'import sys; sys.stdout.write("%d.%d"%(sys.version_info.major,sys.version_info.minor))')
+# ROCKS9
+PY.VERSION	= 2.7
 endif
 PY.PATH		= /opt/rocks/bin/python
 PY.LIB		= python$(PY.VERSION)

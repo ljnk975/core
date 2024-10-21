@@ -78,14 +78,15 @@ include Rules.mk
 build:
 # ROCKS8: Creates missing python-blockdev (just the python bindings, nothing else)
 # https://download.rockylinux.org/pub/rocky/8/AppStream/source/tree/Packages/l/libblockdev-2.28-4.el8.src.rpm
+# https://repo.almalinux.org/vault/9.4/AppStream/Source/Packages/libblockdev-2.28-10.el9.src.rpm
 # Extract sources from src-rpm and build 
-ifeq ($(shell ! test -f libblockdev-$(VERSION)-$(RELEASE).el8.src.rpm && echo -n yes),yes)
-	@echo "ROCKS8: libselinux-$(VERSION)-$(RELEASE).el8.src.rpm."
-	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/AppStream/source/tree/Packages/l -n libblockdev-$(VERSION)-$(RELEASE).el8.src.rpm
+ifeq ($(shell ! test -f libblockdev-$(VERSION)-$(RELEASE).el9.src.rpm && echo -n yes),yes)
+	@echo "ROCKS8: libblockdev-$(VERSION)-$(RELEASE).el9.src.rpm."
+	$(HTTPGET) -B https://repo.almalinux.org -F vault/9.4/AppStream/Source/Packages -n libblockdev-$(VERSION)-$(RELEASE).el9.src.rpm
 endif
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../libblockdev-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
+		rpm2cpio ../libblockdev-$(VERSION)-$(RELEASE).el9.src.rpm | cpio -idmv; \
 		mv lib$(PYPKGNAME)-$(VERSION).tar.gz ../ && cd ..;	\
 		tar xf lib$(PYPKGNAME)-$(VERSION).tar.gz;		\
 		cd lib$(PYPKGNAME)-$(VERSION);				\
@@ -94,7 +95,7 @@ endif
 		autoreconf -ivf;					\
 		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig PYTHON=/opt/rocks/bin/python \
 		./configure --prefix=$(PKGROOT) 		\
-		--with-python2 --without-python3 --without-dmraid;	\
+		--with-python2 --without-python3 --without-dmraid --without-nvme;	\
 		$(MAKE);						\
 	)
 #		$(MAKE) -C src/python;					\

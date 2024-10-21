@@ -78,14 +78,15 @@ include Rules.mk
 build:
 # ROCKS8: Creates missing python-bytesize package
 # https://download.rockylinux.org/pub/rocky/8/AppStream/source/tree/Packages/l/libbytesize-1.4-3.el8.src.rpm
+# https://repo.almalinux.org/vault/9.4/AppStream/Source/Packages/libbytesize-2.5-3.el9.src.rpm
 # Extract sources from src-rpm and build 
-ifeq ($(shell ! test -f libbytesize-$(VERSION)-$(RELEASE).el8.src.rpm && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading libbytesize-$(VERSION)-$(RELEASE).el8.src.rpm."
-	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/AppStream/source/tree/Packages/l -n libbytesize-$(VERSION)-$(RELEASE).el8.src.rpm
+ifeq ($(shell ! test -f libbytesize-$(VERSION)-$(RELEASE).el9.src.rpm && echo -n yes),yes)
+	@echo "ROCKS9: Sideloading libbytesize-$(VERSION)-$(RELEASE).el9.src.rpm."
+	$(HTTPGET) -B https://repo.almalinux.org -F vault/9.4/AppStream/Source/Packages -n libbytesize-$(VERSION)-$(RELEASE).el9.src.rpm
 endif
 	(								\
 		mkdir content && cd content;				\
-		rpm2cpio ../libbytesize-$(VERSION)-$(RELEASE).el8.src.rpm | cpio -idmv; \
+		rpm2cpio ../libbytesize-$(VERSION)-$(RELEASE).el9.src.rpm | cpio -idmv; \
 		mv libbytesize-$(VERSION)*.tar.gz ../ && cd ..;	\
 		tar xf libbytesize-$(VERSION).tar.gz;			\
 		cd libbytesize-$(VERSION);				\
@@ -104,7 +105,7 @@ install::
 		cd lib$(PYPKGNAME)-$(VERSION);				\
 		$(MAKE) -C src/python install;				\
 		mv $(ROOT)/$(PKGROOT)/lib64 $(ROOT)/$(PKGROOT)/lib;	\
-		mv $(ROOT)/$(PKGROOT)/lib/python3.6 $(ROOT)/$(PKGROOT)/lib/python2.7;	\
+		mv $(ROOT)/$(PKGROOT)/lib/python3.9 $(ROOT)/$(PKGROOT)/lib/python2.7;	\
 		$(PY.PATH) -m compileall $(ROOT);			\
 		$(PY.PATH) -OO -m compileall $(ROOT);			\
 	)

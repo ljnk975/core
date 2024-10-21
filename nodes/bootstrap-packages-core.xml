@@ -94,8 +94,6 @@
 	<package os="linux">libxml2-devel</package>
 	<package os="linux" cond="rocks_version_major == 6">mysql-devel</package>
 	<package os="linux" cond="rocks_version_major &gt;= 7">mariadb-devel</package>
-	<package os="linux">pygobject2</package>
-	<package os="linux">pygobject2-devel</package>
 	<package os="linux">readline-devel</package>
 	<package os="linux">slang-devel</package>
 	<package os="linux">swig</package>

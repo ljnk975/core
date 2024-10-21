@@ -78,18 +78,21 @@ include Rules.mk
 build:
 # ROCKS8: Creates missing python-report package for foundation-anaconda
 # https://download.rockylinux.org/pub/rocky/8/BaseOS/source/tree/Packages/l/libuser-0.62-25.el8.src.rpm
+# https://repo.almalinux.org/vault/9.4/BaseOS/Source/Packages/libuser-0.63-13.el9.src.rpm
 ifeq ($(shell ! test -f $(SRCPKGNAME) && echo -n yes),yes)
 	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
-	$(HTTPGET) -B https://download.rockylinux.org -F pub/rocky/8/BaseOS/source/tree/Packages/l -n $(SRCPKGNAME)
+	$(HTTPGET) -B https://repo.almalinux.org -F vault/9.4/BaseOS/Source/Packages -n $(SRCPKGNAME)
 endif
 	(								\
 		mkdir content && cd content;				\
 		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;			\
 		mv $(PYPKGNAME)-$(VERSION).tar.xz ../ && cd ..;		\
 		tar xf $(PYPKGNAME)-$(VERSION).tar.xz;			\
-		cd $(PYPKGNAME)-$(VERSION);				\
+		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../ ; \
+		cd ../$(PYPKGNAME)-$(VERSION);				\
 		PATCHES=`ls ../content/*.patch`;			\
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
+		cd ../$(PYPKGNAME)-$(VERSION);				\
 		autoreconf -if;						\
 		PYTHON=$(PY.PATH) ./configure --prefix=$(PKGROOT) 	\
 		--with-selinux --with-ldap --with-audit; \

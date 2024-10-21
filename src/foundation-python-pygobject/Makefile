@@ -97,33 +97,24 @@ build::
 # MemoryError
 # 3.22 does not compile! 3.29 compiles.
 ifeq ($(shell ! test -f $(PYPKGNAME)-$(VERSION).tar.gz && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(PYPKGNAME)-$(VERSION).tar.xz."
-	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/3.29 -n $(PYPKGNAME)-$(VERSION).tar.xz
+	@echo "ROCKS9: Sideloading $(PYPKGNAME)-$(VERSION).tar.xz."
+	$(HTTPGET) -B https://download.gnome.org -F sources/pygobject/2.28 -n $(PYPKGNAME)-$(VERSION).tar.xz
 endif
-#	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
-#	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
-#	(									\
-#		cd $(PYPKGNAME)-$(VERSION);					\
-#		PYTHON=$(PY.PATH)						\
-#		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
-#		./configure --prefix=$(PKGROOT) --enable-introspection;		\
-#		$(MAKE);							\
-#	)
 	unxz -c $(PYPKGNAME)-$(VERSION).tar.xz | $(TAR) -xf -
-	(								\
-		cd $(PYPKGNAME)-$(VERSION);				\
-		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py build;	\
+	-cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../
+	(									\
+		cd $(PYPKGNAME)-$(VERSION);					\
+		PYTHON=$(PY.PATH)						\
+		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
+		./configure --prefix=$(PKGROOT) --enable-introspection;		\
+		$(MAKE);							\
 	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
-#	(								\
-#		cd $(PYPKGNAME)-$(VERSION);				\
-#		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
-#	)
 	(								\
 		cd $(PYPKGNAME)-$(VERSION);				\
-		PKG_CONFIG_PATH=$(PKGROOT)/lib/pkgconfig:$$PKG_CONFIG_PATH $(PY.PATH) setup.py install --root=$(ROOT);		\
+		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;		\
 	)
 
 clean::

@@ -125,6 +125,10 @@ ifeq ($(strip $(VERSION.MAJOR)), 8)
 NUMPY_VERSION = 1.14.2
 endif
 
+ifeq ($(strip $(VERSION.MAJOR)), 9)
+NUMPY_VERSION = 1.14.2
+endif
+
 HTTPGET	      = ../../src/devel/devel/bin/httpget.sh
 
 build::

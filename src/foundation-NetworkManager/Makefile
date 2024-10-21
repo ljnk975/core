@@ -80,8 +80,9 @@ BUILDROOT =  $(CURDIR)/$(NAME).buildroot
 build::
 # ROCKS8 Neded for port of old Rocks Installer to Rocky8
 # http://vault.centos.org/7.9.2009/updates/Source/SPackages/NetworkManager-1.18.8-2.el7_9.src.rpm
+# https://repo.almalinux.org/vault/9.4/BaseOS/Source/Packages/NetworkManager-1.46.0-4.el9_4.src.rpm
 ifeq ($(shell ! test -f $(SRCPKGNAME)  && echo -n yes),yes)
-	@echo "ROCKS8: Sideloading $(SRCPKGNAME)."
+	@echo "ROCKS9: Sideloading $(SRCPKGNAME)."
 	$(HTTPGET) -B $(SRCPKGHOST) -F $(SRCPKGPATH) -n $(SRCPKGNAME)
 endif
 	(									\
@@ -89,7 +90,8 @@ endif
 		rpm2cpio ../$(SRCPKGNAME) | cpio -idmv;				\
 		mv NetworkManager-$(VERSION).tar.xz ../ && cd ..;		\
 		tar xf NetworkManager-$(VERSION).tar.xz;			\
-		cd NetworkManager-$(VERSION);					\
+		cd patch-files && find . -type f | grep -v CVS | cpio -pduv ../ ; \
+		cd ../NetworkManager-$(VERSION);					\
 		PATCHES=`ls ../content/*.patch`;				\
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;		\
 		autoreconf --install --force;					\
