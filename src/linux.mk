@@ -67,6 +67,33 @@ SRCDIRS=`find . -maxdepth 1 -type d \
 	-not -name foundation-wget \
 	-not -name foundation-redhat \
 	-not -name foundation-NetworkManager \
+	-not -name foundation-openssl-old \
+	-not -name foundation-mysql \
+	-not -name foundation-python \
+	-not -name foundation-python-setuptools \
+	-not -name foundation-python-cython \
+	-not -name foundation-python-typing \
+	-not -name foundation-python-ptyprocess \
+	-not -name foundation-python-gobject-introspection \
+	-not -name foundation-python-pycairo \
+	-not -name foundation-python-pygobject \
+	-not -name foundation-python-six \
+	-not -name foundation-libxml2 \
+	-not -name foundation-python-xml \
+	-not -name foundation-python-numpy \
+	-not -name foundation-python-pygtk \
+	-not -name foundation-mysql \
+	-not -name foundation-python-extras \
+	-not -name foundation-PyYAML \
+	-not -name foundation-rcs \
+	-not -name foundation-curl \
+	-not -name foundation-newt \
+	-not -name librocks \
+	-not -name foundation-python-rpm \
+	-not -name foundation-python-urlgrabber \
+	-not -name foundation-python-selinux \
+	-not -name foundation-device-mapper \
+	-not -name foundation-dmraid \
 	-not -name . `
 
 # Add dirs to be compiled and end of list
