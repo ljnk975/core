@@ -90,7 +90,7 @@ endif
 		mv libbytesize-$(VERSION)*.tar.gz ../ && cd ..;	\
 		tar xf libbytesize-$(VERSION).tar.gz;			\
 		cd libbytesize-$(VERSION);				\
-		PATCHES="../content/libbytesize-tests.patch ../content/libbytesize-potfile.patch";		\
+		PATCHES=`ls ../content/*.patch`;			\
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
 		autoreconf -ivf;					\
 		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig PYTHON=/opt/rocks/bin/python \
