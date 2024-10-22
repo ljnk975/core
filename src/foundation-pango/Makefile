@@ -94,15 +94,15 @@ endif
 		PATCHES=`ls ../content/*.patch`;			\
 		for pat in $$PATCHES; do patch -p1 < $$pat; done;	\
 		PKG_CONFIG_PATH=/opt/rocks/lib/pkgconfig:$$PKG_CONFIG_PATH 	\
-		/usr/bin/meson setup build --prefix=$(PKGROOT) -Dxft=enabled ; \
-		cd build; meson compile \
+		./configure --prefix=$(PKGROOT) --with-xft ; \
+		$(MAKE); \
 	)
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(									\
 		cd pango-$(VERSION);						\
-		cd build; DESTDIR=$(ROOT) meson install;			\
+		$(MAKE) prefix=$(ROOT)/$(PKGROOT) install;			\
 	)	
 
 clean::
