@@ -89,7 +89,6 @@ compile_and_install foundation-python-urlgrabber
 compile_and_install foundation-python-selinux
 compile_and_install foundation-device-mapper
 compile_and_install foundation-dmraid
-compile_and_install foundation-pango
 
 if [ `./_os` == "linux" ]; then
 	install_os_packages server
