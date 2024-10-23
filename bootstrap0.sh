@@ -179,14 +179,11 @@ compile_and_install foundation-python-setuptools
 compile_and_install foundation-python-cython
 compile_and_install foundation-python-typing
 compile_and_install foundation-python-ptyprocess
-compile_and_install foundation-python-gobject-introspection
 compile_and_install foundation-python-pycairo
-compile_and_install foundation-python-pygobject
 compile_and_install foundation-python-six
 compile_and_install foundation-libxml2
 compile_and_install foundation-python-xml
 compile_and_install foundation-python-numpy
-compile_and_install foundation-python-pygtk
 compile_and_install foundation-mysql
 compile_and_install foundation-python-extras
 compile_and_install foundation-PyYAML
