@@ -35,6 +35,9 @@ bootstrap.py
 *.spec.mk
 .rpmmacros
 
+# ignore disk1
+disk1/
+
 # ignore iso file
 *.iso
 
