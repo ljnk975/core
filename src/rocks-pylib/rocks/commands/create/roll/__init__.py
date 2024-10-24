@@ -259,7 +259,12 @@ class Builder:
 		cmd = 'mkisofs -V "%s" %s -r -T -f -o %s .' % \
 			(volname, extraflags, os.path.join(cwd, isoName))
 
-		if self.versionMajor >= 7: 
+		if self.versionMajor >= 7:
+			if self.versionMajor == 9:
+				## Don't allow spaces or escape characters in the iso label
+				def valid_label(ch):
+					return ch.isalnum() or ch == '_'
+				volname = ''.join(ch if valid_label(ch) else '-' for ch in volname)
 			cmd = 'mkisofs -R -f -T -V "%s" %s -o %s .' % \
 				(volname, extraflags, os.path.join(cwd, isoName))
 
